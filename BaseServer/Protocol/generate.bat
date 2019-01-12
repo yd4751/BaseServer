@@ -1,0 +1,1 @@
+protoc --cpp_out=./Protobuf login.proto game.proto
