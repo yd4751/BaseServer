@@ -111,22 +111,32 @@ public:
 			else
 			{
 				m_BufRead.Write(m_Recv.GetBuf(), nCurReadLen);
-				if (!m_PacketParse.Parse(m_BufRead, m_curMessage))
+				//可能有多个消息，这里需要循环处理
+				while (true)
 				{
-					CEasylog::GetInstance()->warn("Error packet");
-					//UpdateStatus(ConnectionStatus::CONNECT_STATUS_WAIT_CLOSE);
-					UpdateStatus(ConnectionStatus::CONNECT_STATUS_CLOSED);
-					return true;
-				}
-				if (m_curMessage->GetStatus() == PacketParseStatus::PARSE_DONE)
-				{
-					if (m_handler)
+					if (!m_PacketParse.Parse(m_BufRead, m_curMessage))
 					{
-						CEasylog::GetInstance()->info("Handler request:", " Cmd:", m_curMessage->GetCommond());
-						m_handler(GetID(), m_curMessage);
+						CEasylog::GetInstance()->warn("Error packet");
+						//UpdateStatus(ConnectionStatus::CONNECT_STATUS_WAIT_CLOSE);
+						UpdateStatus(ConnectionStatus::CONNECT_STATUS_CLOSED);
+						return true;
+					}
+					if (m_curMessage->GetStatus() == PacketParseStatus::PARSE_DONE)
+					{
+						if (m_handler)
+						{
+							//
+							m_curMessage->GetData()->Get()[m_curMessage->GetSize()] = 0;
+							CEasylog::GetInstance()->info("Handler request:", " Cmd:", m_curMessage->GetCommond());
+							m_handler(GetID(), m_curMessage);
+						}
+					}
+					else
+					{
+						//无完整消息
+						break;
 					}
 				}
-				
 				UpdateStatus(ConnectionStatus::CONNECT_STATUS_WRITE);
 				return true;
 			}
@@ -142,7 +152,7 @@ public:
 				nWriteLen = m_Send.GetLeftSize();
 			else
 			{
-				nWriteLen = m_Send.GetMaxSize() > m_BufWrite.Size() ? m_BufWrite.Size() : m_Send.GetMaxSize();
+				nWriteLen = m_Send.GetMaxSize() > (int32_t)m_BufWrite.Size() ? m_BufWrite.Size() : m_Send.GetMaxSize();
 				m_BufWrite.Read(m_Send.GetBuf(), nWriteLen);
 				m_Send.SetSend(nWriteLen);
 			}

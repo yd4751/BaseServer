@@ -24,4 +24,8 @@
 #include "CNodeManager.h"
 #include "CSocketInterface.h"
 
+/////////////////////////////////////////
+//逻辑层维持单线程锁
+extern std::mutex			m_netEventlock;
+/////////////////////////////////////////
 #endif

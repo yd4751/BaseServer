@@ -75,6 +75,9 @@
     <ClCompile Include="..\code\NetWorkSerilize.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\code\CTimer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\CAcceptor.h">
@@ -113,9 +116,6 @@
     <ClInclude Include="..\code\CMessage.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\code\CNetCoreInterface.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\code\CNetWork.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -135,6 +135,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\code\NetWorkSerilize.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\CNetCoreInterface.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\CTimer.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

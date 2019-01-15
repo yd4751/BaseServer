@@ -1,5 +1,6 @@
 #include "CNetCoreInterface.h"
 #include "CNetWork.h"
+#include "CTimer.h"
 
 extern "C"
 {
@@ -22,6 +23,10 @@ extern "C"
 	{
 		return CNetWork::GetInstance()->Connect(ip, port);
 	};
+	void CAPI_DECLSPEC Disconnect(int id)
+	{
+		CNetWork::GetInstance()->Disconnect(id);
+	};
 	bool CAPI_DECLSPEC SendData(int id, int cmd, const char* data, int length, ProtocolType type)
 	{
 		return CNetWork::GetInstance()->SendData(id, cmd, data, length, type);
@@ -34,9 +39,25 @@ extern "C"
 	{
 		CNetWork::GetInstance()->Stop();
 	};
-
 	//Timer
-	//AddTask()
-	//StopTask()
-	//CancelTask()
+	void CAPI_DECLSPEC RegisterTimerHandler(cbTimerHandler handler)
+	{
+		CTimer::GetInstance()->RegisterTimerHandler(handler);
+	};
+	int	 CAPI_DECLSPEC AddTimer(int expiredTime)
+	{
+		return CTimer::GetInstance()->AddTimer(expiredTime);
+	};
+	void CAPI_DECLSPEC CancelTimer(int timerID)
+	{
+		CTimer::GetInstance()->CancelTimer(timerID);
+	};
+	void CAPI_DECLSPEC ResetTimer(int timerID)
+	{
+		CTimer::GetInstance()->ResetTimer(timerID);
+	};
+	int  CAPI_DECLSPEC GetTimerReaminTime(int timerID)
+	{
+		return CTimer::GetInstance()->GetTimerReaminTime(timerID);
+	};
 }

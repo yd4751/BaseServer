@@ -40,12 +40,20 @@ class CRemoteServer;
 logic -> loginhall : UpdatePlaying()
 logic -> loginhall : UpdateExited()
 logic -> loginhall : UpdateUserInfo()   //json或类似map数据结构
+logic -> loginhall : SendData()
 
 loginhall -> logic : Disconnect()
 loginhall -> logic : Reconnect()
 loginhall -> logic : UpdateUserInfo()   //json或类似map数据结构
+loginhall -> logic : OnMessage()
 
 其他游戏数据交互存储...  待定，写到再说
+//还有定时器的实现：初步构思放到网络库中
+RegisterTimerHandler
+AddTimer()		//底层只维护timerid 和 时间相关属性，其他回调管理任务由上层管理
+DelTimer()
+
+logic -> loginhall -> libnetcore
 */
 
 class CLoginHall:
@@ -86,7 +94,8 @@ public:
 		pCurMessage->nCmd = nCmd;
 		pCurMessage->nMsgLength = nMsgLength;
 		pCurMessage->nProtoType = type;
-		
+		//初始化尾部
+		pCurMessage->GetDataBuf()[nMsgLength] = 0;
 		memcpy(pCurMessage->GetDataBuf(), msgBuf, nMsgLength * sizeof(char));
 
 		if (Return_true == CLoginHall::GetInstance()->Dispatch(nClientID, pCurMessage))
@@ -109,6 +118,8 @@ public:
 
 	//连接登录登出
 public:
+	//
+	bool CheckIsLoginUser(const std::string account);
 	//玩家是否允许退出
 	bool CheckCanLogout(std::shared_ptr<CBaseUser>) { return true; }
 	//
@@ -118,5 +129,48 @@ public:
 	//
 	ReturnType OnLogout(int nClientID, std::shared_ptr<CMessage>);
 
+	//
+public:
+	void UpdatePlaying(int32_t nUid)
+	{
+		std::shared_ptr<CBaseUser> pUser = m_UserManager.GetUser(nUid);
+		if (!pUser)
+		{
+			CEasylog::GetInstance()->warn("can not find user:", nUid);
+			return;
+		}
+		pUser->UpdateStatus(UserStatus::USER_STATUS_PLAYING);
+	};
+	void UpdateExited(int32_t nUid)
+	{
+		std::shared_ptr<CBaseUser> pUser = m_UserManager.GetUser(nUid);
+		if (!pUser)
+		{
+			CEasylog::GetInstance()->warn("can not find user:", nUid);
+			return;
+		}
+		pUser->UpdateStatus(UserStatus::USER_STATUS_EXITED);
+	};
+	void UpdateUserInfo(int32_t nUid,std::string info)
+	{
+		std::shared_ptr<CBaseUser> pUser = m_UserManager.GetUser(nUid);
+		if (!pUser)
+		{
+			CEasylog::GetInstance()->warn("can not find user:", nUid);
+			return;
+		}
+		pUser->UpdateInfo(info);
+	};
+	void SendData(int32_t nUid, int32_t nCmd, std::string msg)
+	{
+		std::shared_ptr<CBaseUser> pUser = m_UserManager.GetUser(nUid);
+		if (!pUser)
+		{
+			CEasylog::GetInstance()->warn("can not find user:", nUid);
+			return;
+		}
+
+		pUser->Send(nCmd, msg);
+	};
 };
 #endif

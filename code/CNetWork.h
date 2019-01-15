@@ -4,6 +4,7 @@
 #include "CAcceptor.h"
 #include "CCommuniterGroups.h"
 #include "CMessage.h"
+#include "CTimer.h"
 
 class CNetWorkConfig
 {
@@ -44,7 +45,6 @@ class CNetWork:
 	std::vector<int32_t>										m_listenSocks;	//select»º´æ
 	CNodeManager<int32_t, std::weak_ptr<CBaseConnection>>		m_events;
 
-	std::mutex													m_netEventlock;
 	cbEventHandler												m_pNetEventHandler;
 
 public:
@@ -137,6 +137,10 @@ public:
 
 		CBaseWorker::Start();
 		CEasylog::GetInstance()->warn("NetWork run success!");
+
+		//
+		CTimer::GetInstance()->Start();
+		CEasylog::GetInstance()->warn("TimerWork run success!");
 	}
 	void Stop()
 	{
@@ -237,8 +241,12 @@ public:
 	{
 		if (!CBaseWorker::IsRunning()) return ;
 
-		std::shared_ptr<CBaseConnection> pCur(m_events.Get(id));
-		if (pCur) pCur->Disconnect();
+		std::weak_ptr<CBaseConnection> pWark = m_events.Get(id);
+		if (!pWark.expired())
+		{
+			std::shared_ptr<CBaseConnection> pCur(pWark);
+			if (pCur) pCur->Disconnect();
+		}
 	}
 	bool SendData(int32_t id, int nCmd, const char* pInput, int nInputLength, ProtocolType nProtoType)
 	{

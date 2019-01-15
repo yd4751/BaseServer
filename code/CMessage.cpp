@@ -89,14 +89,14 @@ void CPacket::FillData(CBuffer& data, char* codeData, uint32_t codeLength)
 
 bool CPacket::Parse(CBuffer& data, std::shared_ptr<CMessage> msg)
 {
-	if (data.Size() < sizeof(PacketHead))
-	{
-		return true;
-	}
-
 	if (PacketParseStatus::PARSE_DONE == msg->GetStatus())
 	{
 		msg->Reset();
+	}
+
+	if (data.Size() < sizeof(PacketHead))
+	{
+		return true;
 	}
 
 	if (PacketParseStatus::PARSE_HEAD == msg->GetStatus())

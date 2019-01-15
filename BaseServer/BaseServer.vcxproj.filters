@@ -45,9 +45,6 @@
     <ClInclude Include="Core\NetWorkSerilize.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="include\CNetCoreInterface.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Protocol\message_define.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -85,6 +82,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Tools\CTools.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\CScriptInterface.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\CTimerTask.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\CNetCoreInterface.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -143,5 +149,21 @@
     <ClCompile Include="Tools\CTools.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Core\CScriptInterface.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\CTimerTask.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Server\Login\CLoginHallExtern.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Server\Login\CLoginHallProto.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\Game\main.lua" />
+    <None Include="Scripts\Game\User\BaseUserManager.lua" />
   </ItemGroup>
 </Project>

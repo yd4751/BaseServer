@@ -10,19 +10,24 @@ namespace NetCore
 #include <thread>
 #include <chrono>
 #include <json/json.h>
+#include "CTools.h"
 
 bool NetWorkEvent(int nClientID, int nCmd, int nMsgLength, char* msgBuf, NetCore::ProtocolType type)
 {
 	std::cout << __FUNCTION__ << ": " << nClientID << " Cmd:" << nCmd << "  Length:" << nMsgLength << std::endl;
-
+	std::cout << msgBuf << std::endl;
 	//std::string reply("1234567890");
 	//NetCore::SendData(nClientID, 1234, reply.c_str(), reply.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
 
-	Json::Value sendStr;
-	sendStr["code"] = 1;
-	std::string reply = sendStr.toStyledString();
-	NetCore::SendData(nClientID, 6004, reply.c_str(), reply.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
+	//Json::Value sendStr;
+	//sendStr["code"] = 1;
+	//std::string reply = sendStr.toStyledString();
+	//NetCore::SendData(nClientID, 6004, reply.c_str(), reply.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
 	return true;
+};
+void OnTimeOut(int timerID)
+{
+	std::cout << __FUNCTION__ << " : " << Tools::GetCurDateTime() << std::endl;
 };
 
 int main()
@@ -38,6 +43,13 @@ int main()
 	std::string str = sendStr.toStyledString();
 	int nServer = NetCore::Connect("127.0.0.1", 9999);
 	NetCore::SendData(nServer, 5004, str.c_str(), str.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
+
+	{
+		Json::Value sendStr;
+		sendStr["id"] = "12321";
+		std::string str = sendStr.toStyledString();
+		NetCore::SendData(nServer, 5004, str.c_str(), str.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
+	}
 	while (true)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -45,8 +57,10 @@ int main()
 #else
 	NetCore::Config(9999);
 	NetCore::RegisterEvnetHandler(NetWorkEvent);
+	NetCore::RegisterTimerHandler(OnTimeOut);
 	NetCore::Start();
-
+	//int nid = NetCore::AddTimer(1000);
+	//nid = NetCore::AddTimer(5000);
 	while (true)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));

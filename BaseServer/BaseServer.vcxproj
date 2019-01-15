@@ -85,12 +85,14 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)CmdDefine;$(SolutionDir)Core;$(SolutionDir)include;$(SolutionDir)Protocol;$(SolutionDir)Protocol\Protobuf;$(SolutionDir)ProtocolParse;$(SolutionDir)Rpc;$(SolutionDir)Server;$(SolutionDir)Server\Login;$(SolutionDir)Server\RemoteServer;$(SolutionDir)Tools;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)CmdDefine;$(SolutionDir)Core;$(SolutionDir)include;$(SolutionDir)Protocol;$(SolutionDir)Protocol\Protobuf;$(SolutionDir)ProtocolParse;$(SolutionDir)Rpc;$(SolutionDir)Server;$(SolutionDir)Server\Login;$(SolutionDir)Server\RemoteServer;$(SolutionDir)Tools;$(SolutionDir)..\code</AdditionalIncludeDirectories>
       <PreprocessorDefinitions> _CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS; _WIN32_WINDOWS;__WINDOWS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)..\libs</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libnetcore_x86_debug.lib;json_x86_debug.lib;libprotobuf_x86_debug.lib;hiredis_x86_debug.lib;Win32_Interop_x86_debug.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua53_x86.lib;libnetcore_x86_debug.lib;json_x86_debug.lib;libprotobuf_x86_debug.lib;hiredis_x86_debug.lib;Win32_Interop_x86_debug.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -135,6 +137,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\code\CNetCoreInterface.h" />
     <ClInclude Include="CmdDefine\ClientCmdDefine.h" />
     <ClInclude Include="CmdDefine\ManagerCmdDefine.h" />
     <ClInclude Include="CmdDefine\RedisDataDefine.h" />
@@ -143,9 +146,10 @@
     <ClInclude Include="Core\CMessageHandler.h" />
     <ClInclude Include="Core\CRedis.h" />
     <ClInclude Include="Core\CRemoteServer.h" />
+    <ClInclude Include="Core\CScriptInterface.h" />
+    <ClInclude Include="Core\CTimerTask.h" />
     <ClInclude Include="Core\global_include.h" />
     <ClInclude Include="Core\NetWorkSerilize.h" />
-    <ClInclude Include="include\CNetCoreInterface.h" />
     <ClInclude Include="ProtocolParse\CProtocolParse.h" />
     <ClInclude Include="ProtocolParse\JsonParse.h" />
     <ClInclude Include="ProtocolParse\ProtoBufParse.h" />
@@ -165,6 +169,8 @@
     <ClCompile Include="Core\CMessageHandler.cpp" />
     <ClCompile Include="Core\CRedis.cpp" />
     <ClCompile Include="Core\CRemoteServer.cpp" />
+    <ClCompile Include="Core\CScriptInterface.cpp" />
+    <ClCompile Include="Core\CTimerTask.cpp" />
     <ClCompile Include="Core\NetWorkSerilize.cpp" />
     <ClCompile Include="ProtocolParse\CProtocolParse.cpp" />
     <ClCompile Include="ProtocolParse\JsonParse.cpp" />
@@ -174,11 +180,17 @@
     <ClCompile Include="Server\CBaseUserManager.cpp" />
     <ClCompile Include="Server\CConfig.cpp" />
     <ClCompile Include="Server\Login\CLoginHall.cpp" />
+    <ClCompile Include="Server\Login\CLoginHallExtern.cpp" />
+    <ClCompile Include="Server\Login\CLoginHallProto.cpp" />
     <ClCompile Include="Server\RemoteServer\CDataServer.cpp" />
     <ClCompile Include="Server\RemoteServer\CRedisServer.cpp" />
     <ClCompile Include="Server\Server.cpp" />
     <ClCompile Include="Tools\CEasyLog.cpp" />
     <ClCompile Include="Tools\CTools.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\Game\main.lua" />
+    <None Include="Scripts\Game\User\BaseUserManager.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

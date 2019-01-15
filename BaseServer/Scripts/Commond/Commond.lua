@@ -1,0 +1,15 @@
+ClientRequest = {
+    ROOM_LOGIN = 1000,
+    ROOM_LOGOUT = 1001,
+	BULLET_FIRE = 1002,
+	FISH_ATTACK = 1003,
+}
+
+ServerReply = {
+    ROOM_LOGIN = 2000,
+    ROOM_LOGOUT = 2001,
+	FISH_INFO_UPDATE = 2002,
+	BULLET_FIRE_REUSLT = 2003,
+	FISH_DIE = 2004,
+	
+}

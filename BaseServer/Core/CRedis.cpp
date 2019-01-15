@@ -197,7 +197,7 @@ void CRedis::GetReturn(redisReply* reply, RedisStringPairsPtr pResult)
 {
 	if (reply->elements == 0) return;
 
-	for (int i = 0; i < reply->elements - 1; i += 2)
+	for (unsigned int i = 0; i < reply->elements - 1; i += 2)
 	{
 		if (reply->element[i]->type == REDIS_REPLY_STRING)
 		{

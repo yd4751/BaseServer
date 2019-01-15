@@ -7,13 +7,27 @@ typedef enum UserStatus
 	USER_STATUS_NULL = 0,
 	USER_STATUS_LOGIN,
 	USER_STATUS_DISCONNECT,
+	USER_STATUS_PLAYING,
+	USER_STATUS_EXITED,
 	USER_STATUS_MAX,
 }UserStatus;
 
+//具体是什么登录方式由客户端识别
+enum UserIdentifyType
+{
+	IDENTIFY_TYPE_NULL = 0,
+	IDENTIFY_TYPE_ACCOUNT,
+	IDENTIFY_TYPE_EMAIL,		
+	IDENTIFY_TYPE_PHONE,
+	IDENTIFY_TYPE_UID,
+	IDENTIFY_TYPE_WCHAT,
+	IDENTIFY_TYPE_QQ,
+};
 //标识唯一登录（多字段）
 class CUesrIdentify
 {
 public:
+	std::string			account;
 	std::string			email;
 	std::int32_t		phoneNumber;
 	std::int32_t		userID;
@@ -21,12 +35,14 @@ public:
 public:
 	CUesrIdentify()
 	{
+		account = "";
 		email = "";
 		phoneNumber = 0;
 		userID = 0;
 	}
-	CUesrIdentify(std::string email, std::int32_t phoneNumber, std::int32_t userID)
+	CUesrIdentify(std::string account,std::string email, std::int32_t phoneNumber, std::int32_t userID)
 	{
+		this->account = account;
 		this->email = email;
 		this->phoneNumber = phoneNumber;
 		this->userID = userID;
@@ -51,6 +67,7 @@ class CBaseUser
 
 public:
 	CBaseUser();
+	CBaseUser(int nUid) { m_identify.userID = nUid; };
 	virtual ~CBaseUser();
 
 protected:
@@ -97,9 +114,51 @@ public:
 	}
 
 public:
+	CUesrIdentify& GetUserIdentify() { return m_identify; }
 	UserStatus GetStatus() { return m_curStatus; }
 	int32_t	GetID() { return m_identify.userID; }
 	int32_t GetConnectID() { return m_connectID; }
+	void UpdateStatus(UserStatus status)
+	{
+		m_curStatus = status;
+	}
+	
+	bool IsUser(UserIdentifyType type, int32_t identify)
+	{
+		switch (type)
+		{
+		case IDENTIFY_TYPE_PHONE:
+			return false;
+		case IDENTIFY_TYPE_UID:
+			return m_identify.userID == identify ? true : false;
+		case IDENTIFY_TYPE_NULL:
+		default:
+			return false;
+		}
+	}
+	bool IsUser(UserIdentifyType type, const std::string identify)
+	{
+		switch (type)
+		{
+		case IDENTIFY_TYPE_ACCOUNT:
+			return m_identify.account == identify ? true : false;
+		case IDENTIFY_TYPE_EMAIL:
+			return m_identify.email == identify ? true : false;
+
+		case IDENTIFY_TYPE_WCHAT:
+			return false;
+		case IDENTIFY_TYPE_QQ:
+			return false;
+		case IDENTIFY_TYPE_NULL:
+		default:
+			return false;
+		}
+	}
+
+	void UpdateInfo(std::string info)
+	{
+		//....
+	}
 };
 
 #endif

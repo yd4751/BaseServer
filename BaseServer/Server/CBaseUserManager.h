@@ -37,14 +37,14 @@ public:
 		
 		return nullptr;
 	}
-	std::shared_ptr<T> GetUserByAccount(std::string strAccount)
+
+	template<typename TIdentify>
+	std::shared_ptr<T> GetUserByIdentify(UserIdentifyType type,const TIdentify identify)
 	{
 		for (auto itUser : m_LoginUsers)
 		{
-			if (itUser.second->GetAccount() == strAccount)
-			{
+			if (itUser.second->IsUser(type,identify))
 				return itUser.second;
-			}
 		}
 
 		return nullptr;
@@ -53,7 +53,7 @@ public:
 	{
 		if (m_LoginUsers.find(nUserID) != m_LoginUsers.end())
 			return m_LoginUsers[nUserID];
-		return  m_LoginUsers[nUserID] = std::make_shared<T>();
+		return  m_LoginUsers[nUserID] = std::make_shared<T>(nUserID);
 	}
 	void RemoveUser(int32_t nUserID)
 	{

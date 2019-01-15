@@ -23,6 +23,7 @@ enum ErrorCode
 	ERROR_CODE_CONNECT_CLOSED,
 };
 typedef bool(*cbEventHandler)(int nClientID, int nCmd, int nMsgLength, char* msgBuf, ProtocolType type);
+typedef void(*cbTimerHandler)(int timerID);
 
 #if defined(__WINDOWS__)
 #ifndef CAPI_DECLSPEC
@@ -38,14 +39,17 @@ extern "C"
 	void CAPI_DECLSPEC Config(int);
 	void CAPI_DECLSPEC RegisterEvnetHandler(cbEventHandler);
 	int  CAPI_DECLSPEC Connect(const char* ip, int port);
+	void CAPI_DECLSPEC Disconnect(int id);
 	bool CAPI_DECLSPEC SendData(int id , int cmd ,const char* data, int length, ProtocolType type);
 	void CAPI_DECLSPEC Start();
 	void CAPI_DECLSPEC Stop();
 
 	//Timer
-	//AddTask()
-	//StopTask()
-	//CancelTask()
+	void CAPI_DECLSPEC RegisterTimerHandler(cbTimerHandler);
+	int	 CAPI_DECLSPEC AddTimer(int expiredTime);		//timerid 复用问题怎么处理
+	void CAPI_DECLSPEC CancelTimer(int timerID);
+	void CAPI_DECLSPEC ResetTimer(int timerID);
+	int  CAPI_DECLSPEC GetTimerReaminTime(int timerID);
 }
 
 

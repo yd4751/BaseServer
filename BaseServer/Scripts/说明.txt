@@ -1,0 +1,22 @@
+main.lua  --启动脚本，与c++交互接口均在里面
+
+RoomManager  --房间管理，玩家管理
+Room	--游戏逻辑具体实现
+Config     --房间配置、游戏配置等
+
+
+玩家请求加入游戏 -> 
+	新玩家 -> RoomManager寻找合适Room  ->  创建玩家数据结构 -> UpdatePlaying -> 等待玩家信息更新通知 -> OnUpdateUserInfo -> 上桌
+	老玩家 -> 上桌
+
+玩家退出游戏 -> 
+	新玩家 -> 返回
+	老玩家 -> 获取游戏Room -> 登出 -> (UpdateExited 这个是通知断开连接)
+
+玩家游戏请求 ->
+	新玩家 -> 返回
+	老玩家 -> Room处理响应
+
+玩家信息请求修改 -> 
+	不需要实时更新 -> 本地修改
+	实时更新 -> 本地修改 -> UpdateUserInfo -> OnUpdateUserInfo  -> 更新完成

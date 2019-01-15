@@ -6,6 +6,7 @@
 #include "message_define.h"
 #include "CRpc.h"
 #include "CBaseUser.h"
+#include "CScriptInterface.h"
 
 using namespace MessageDefine;
 
@@ -13,7 +14,7 @@ void CLoginHall::Start()
 {
 	//普通消息注册
 	//
-	RegisterMessage(NetCore::ClientMangerCmd::DISCONNECT, std::bind(&CLoginHall::OnDisconnect, this, std::placeholders::_1, std::placeholders::_2));
+	//RegisterMessage(NetCore::ClientMangerCmd::DISCONNECT, std::bind(&CLoginHall::OnDisconnect, this, std::placeholders::_1, std::placeholders::_2));
 	//
 	RegisterMessage(ClientRequest::LOGIN_SERVER, std::bind(&CLoginHall::OnLogin, this, std::placeholders::_1, std::placeholders::_2));
 	RegisterMessage(ClientRequest::LOGOUT_SERVER, std::bind(&CLoginHall::OnLogout, this, std::placeholders::_1, std::placeholders::_2));
@@ -42,6 +43,8 @@ void CLoginHall::Start()
 		if(m_RemoteServers[RemoteServerType::SERVER_TYPE_DATABASE].get()) m_RemoteServers[RemoteServerType::SERVER_TYPE_DATABASE]->Start();
 	}*/
 
+	//Script
+	CScriptInterface::GetInstance()->InitScript();
 };
 
 std::shared_ptr<CRemoteServer> CLoginHall::GetRemoteServer(RemoteServerType type)
@@ -58,8 +61,26 @@ ReturnType CLoginHall::Dispatch(int nClientID, std::shared_ptr<CMessage> msg)
 	ReturnType ret = CMessageHandler::Dispatch(nClientID, msg);
 	if(ReturnType::Return_error != ret)
 		return ret;
+	std::shared_ptr<CBaseUser> pUser = m_UserManager.GetUserByConnectID(nClientID);
+	if (pUser)
+	{
+		//连接
+		switch (msg->nCmd)
+		{
+		//case NetCore::CONNECT:
+			//根据登录结果判断
+			//CScriptInterface::Reconnect();
+		//	return Return_true;
+		case NetCore::DISCONNECT:
+			CScriptInterface::Disconnect(pUser->GetID());
+			return Return_true;
+		default:
+			if(CScriptInterface::Dispatch(pUser->GetID(), msg->nCmd, msg->GetDataBuf()))
+				return Return_true;
+		}
+	}
 
-
+	CEasylog::GetInstance()->warn("can not handler messge!",msg->nCmd,nClientID);
 	return Return_error;
 };
 ///
@@ -118,6 +139,8 @@ ReturnType CLoginHall::OnRedisReplyLogin(int nClientID, std::shared_ptr<CMessage
 	}
 
 	pLoginUser->Init(reply.id);
+	//
+	pLoginUser->GetUserIdentify().account = reply.account;
 	pLoginUser->BindConnectID(nConnectID);
 
 	std::string str = ProtoParse::MakePacket(NetCore::ProtocolType::PROTO_TYPE_JSON, reply);
@@ -144,7 +167,24 @@ ReturnType CLoginHall::OnLogin(int nClientID, std::shared_ptr<CMessage> msg)
 		return ReturnType::Return_true;
 	}
 	//已登录玩家
-	//...
+	std::shared_ptr<CBaseUser> pLoginUser = m_UserManager.GetUserByIdentify(UserIdentifyType::IDENTIFY_TYPE_ACCOUNT,req.account);
+	if (pLoginUser)
+	{
+		//
+		NetCore::Disconnect(pLoginUser->GetConnectID());
+		pLoginUser->BindConnectID(nClientID);
+		//回复
+		ReplyAccountLogin reply;
+		reply.code = ReplyErrorCode::REPLY_CODE_SUCCESS;
+		reply.id = pLoginUser->GetID();
+		reply.account = pLoginUser->GetUserIdentify().account;
+		reply.nick_name = "测试";
+		std::string str = ProtoParse::MakePacket(NetCore::ProtocolType::PROTO_TYPE_JSON, reply);
+		pLoginUser->Send(ServerRepley::REPLY_RESULT_LOGIN_SERVER, str);
+		//
+		CScriptInterface::Reconnect(pLoginUser->GetID());
+		return ReturnType::Return_true;
+	}
 
 	m_PreLoginUser[req.account] = nClientID;
 	//投递请求
