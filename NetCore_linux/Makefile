@@ -17,8 +17,8 @@ CXXFLAGS := -m64 -pg -g -Wall -D_GNU_SOURCE -funroll-loops -MMD -D_REENTRANT -st
 PROJECT_INC+=$(WORK_PATH)
 
 #编译参数
-INCLUDE_PATH := -I$(PROJECT_INC) -I$(CODE_PATH)
-LIBS:= -pthread
+INCLUDE_PATH := -I$(PROJECT_INC) -I$(CODE_PATH) -I/opt/jsoncpp/include/
+LIBS:= -pthread -L/opt/jsoncpp/lib -ljsoncpp
 
 #生成参数
 APP_NAME:=$(PROJECT_NAME)

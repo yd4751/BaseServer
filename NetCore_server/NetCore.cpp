@@ -15,7 +15,8 @@ namespace NetCore
 bool NetWorkEvent(int nClientID, int nCmd, int nMsgLength, char* msgBuf, NetCore::ProtocolType type)
 {
 	std::cout << __FUNCTION__ << ": " << nClientID << " Cmd:" << nCmd << "  Length:" << nMsgLength << std::endl;
-	std::cout << msgBuf << std::endl;
+	if(nMsgLength > 0)
+		std::cout << msgBuf << std::endl;
 	//std::string reply("1234567890");
 	//NetCore::SendData(nClientID, 1234, reply.c_str(), reply.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
 
@@ -30,40 +31,75 @@ void OnTimeOut(int timerID)
 	std::cout << __FUNCTION__ << " : " << Tools::GetCurDateTime() << std::endl;
 };
 
-int main()
+static bool bInit = false;
+void Init()
 {
-#if 0
+	if (bInit)
+	{
+		return;
+	}
+	int32_t nServerID = -1;
 	NetCore::Config(0);
 	NetCore::RegisterEvnetHandler(NetWorkEvent);
 	NetCore::Start();
-
+	
+	nServerID = NetCore::Connect("127.0.0.1", 9999);
 	Json::Value sendStr;
-	sendStr["account"] = "12321";
-	sendStr["password"] = "12321";
+	sendStr["account"] = "bighat";
+	sendStr["password"] = "bighat";
 	std::string str = sendStr.toStyledString();
-	int nServer = NetCore::Connect("127.0.0.1", 9999);
-	NetCore::SendData(nServer, 5004, str.c_str(), str.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
+	NetCore::SendData(nServerID, 5004, str.c_str(), str.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
+	bInit = true;
+};
 
-	{
-		Json::Value sendStr;
-		sendStr["id"] = "12321";
-		std::string str = sendStr.toStyledString();
-		NetCore::SendData(nServer, 5004, str.c_str(), str.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
-	}
+int main()
+{
+#if 1
+
 	while (true)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		std::string input;
+		std::cin >> input;
+		if (input == "start")
+		{
+			Init();
+		}
+		else if (input == "stop")
+		{
+			NetCore::Stop();
+			bInit = false;
+		}
+		else if (input == "exit")
+		{
+			break;
+		}
 	}
 #else
-	NetCore::Config(9999);
-	NetCore::RegisterEvnetHandler(NetWorkEvent);
-	NetCore::RegisterTimerHandler(OnTimeOut);
-	NetCore::Start();
+
 	//int nid = NetCore::AddTimer(1000);
 	//nid = NetCore::AddTimer(5000);
 	while (true)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		std::string input;
+		std::cin >> input;
+		if (input == "start")
+		{
+			NetCore::Config(9999);
+			NetCore::RegisterEvnetHandler(NetWorkEvent);
+			NetCore::RegisterTimerHandler(OnTimeOut);
+			NetCore::Start();
+		}
+		else if (input == "stop")
+		{
+			std::cout << "Wait stop!" << std::endl;
+			NetCore::Stop();
+		}
+		else if (input == "exit")
+		{
+			break;
+		}
 	}
 #endif
 

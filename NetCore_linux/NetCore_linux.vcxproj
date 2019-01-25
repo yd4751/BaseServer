@@ -52,6 +52,7 @@
     <ClCompile Include="..\code\CNodeManager.cpp" />
     <ClCompile Include="..\code\CSingleton.cpp" />
     <ClCompile Include="..\code\CSocketInterface.cpp" />
+    <ClCompile Include="..\code\CTimer.cpp" />
     <ClCompile Include="..\code\CTools.cpp" />
     <ClCompile Include="..\code\NetWorkSerilize.cpp" />
     <ClCompile Include="main.cpp" />
@@ -74,6 +75,7 @@
     <ClInclude Include="..\code\CNodeManager.h" />
     <ClInclude Include="..\code\CSingleton.h" />
     <ClInclude Include="..\code\CSocketInterface.h" />
+    <ClInclude Include="..\code\CTimer.h" />
     <ClInclude Include="..\code\CTools.h" />
     <ClInclude Include="..\code\DataDefine.h" />
     <ClInclude Include="..\code\NetWorkSerilize.h" />
@@ -103,6 +105,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
     <ConfigurationType>Makefile</ConfigurationType>
+    <RemoteRootDir>/root</RemoteRootDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -143,6 +146,15 @@
     </RemoteReBuildCommandLine>
     <RemoteCleanCommandLine>
     </RemoteCleanCommandLine>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <RemoteBuildCommandLine>cd $(ProjectName) &amp;&amp; make</RemoteBuildCommandLine>
+    <RemoteReBuildCommandLine>
+    </RemoteReBuildCommandLine>
+    <RemoteCleanCommandLine>
+    </RemoteCleanCommandLine>
+    <NMakeIncludeSearchPath>
+    </NMakeIncludeSearchPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <BuildLog>

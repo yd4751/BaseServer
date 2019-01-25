@@ -26,7 +26,7 @@ public:
 		if (nListenSockid < 0)
 		{
 			CEasylog::GetInstance()->error("Fail to listen, port:", nPort);
-			abort();
+			assert(false);
 		}
 		SetID(nListenSockid);
 		CEasylog::GetInstance()->info("ListenPort:", nPort,"SockID:",nListenSockid);

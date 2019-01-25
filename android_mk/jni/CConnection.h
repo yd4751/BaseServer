@@ -111,6 +111,7 @@ public:
 			else
 			{
 				m_BufRead.Write(m_Recv.GetBuf(), nCurReadLen);
+				CEasylog::GetInstance()->info("ReadSize:",nCurReadLen);
 				//可能有多个消息，这里需要循环处理
 				while (true)
 				{
@@ -127,7 +128,7 @@ public:
 						{
 							//
 							m_curMessage->GetData()->Get()[m_curMessage->GetSize()] = 0;
-							//CEasylog::GetInstance()->info("Handler request:", " Cmd:", m_curMessage->GetCommond()," : " , (char*)m_curMessage->GetData()->Get());
+							CEasylog::GetInstance()->info("Handler request:", " Cmd:", m_curMessage->GetCommond()," : Size",m_curMessage->GetSize() );
 							m_handler(GetID(), m_curMessage);
 						}
 					}

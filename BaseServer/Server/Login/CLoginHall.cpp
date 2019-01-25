@@ -171,14 +171,17 @@ ReturnType CLoginHall::OnLogin(int nClientID, std::shared_ptr<CMessage> msg)
 	if (pLoginUser)
 	{
 		//
-		NetCore::Disconnect(pLoginUser->GetConnectID());
+		if (nClientID != pLoginUser->GetConnectID())
+		{
+			NetCore::Disconnect(pLoginUser->GetConnectID());
+		}
 		pLoginUser->BindConnectID(nClientID);
 		//»Ø¸´
 		ReplyAccountLogin reply;
 		reply.code = ReplyErrorCode::REPLY_CODE_SUCCESS;
 		reply.id = pLoginUser->GetID();
 		reply.account = pLoginUser->GetUserIdentify().account;
-		reply.nick_name = "²âÊÔ";
+		reply.nick_name = "test";
 		std::string str = ProtoParse::MakePacket(NetCore::ProtocolType::PROTO_TYPE_JSON, reply);
 		pLoginUser->Send(ServerRepley::REPLY_RESULT_LOGIN_SERVER, str);
 		//

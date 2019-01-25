@@ -6,4 +6,9 @@
     <DebuggerFlavor>LinuxDebugger</DebuggerFlavor>
     <AdditionalSymbolSearchPaths>$(SolutionDir)..\code\;$(AdditionalSymbolSearchPaths)</AdditionalSymbolSearchPaths>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <RemoteDebuggerCommand>$(RemoteRootDir)/$(ProjectName)/$(ProjectName)/netcore</RemoteDebuggerCommand>
+    <RemoteDebuggerWorkingDirectory>$(RemoteRootDir)/$(ProjectName)</RemoteDebuggerWorkingDirectory>
+    <DebuggerFlavor>LinuxDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>
