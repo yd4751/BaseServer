@@ -142,8 +142,6 @@ namespace ProtoParseJson
 		if (reply.code == ReplyErrorCode::REPLY_CODE_SUCCESS)
 		{
 			reply.id = value["id"].asInt();
-			reply.nick_name = value["nick_name"].asInt();
-			reply.create_date = value["create_date"].asInt();
 		}
 		
 		return reply;
@@ -157,8 +155,6 @@ namespace ProtoParseJson
 		if (reply.code == ReplyErrorCode::REPLY_CODE_SUCCESS)
 		{
 			value["id"] = reply.id;
-			value["nick_name"] = reply.nick_name;
-			value["create_date"] = reply.create_date;
 		}
 
 		return value.toStyledString();

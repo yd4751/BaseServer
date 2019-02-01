@@ -36,7 +36,6 @@ void CRedisServer::Start()
 	RegisterMessage(RedisServerRequest::REDIS_REQUEST_LOGOUT, std::bind(&CRedisServer::OnLogout, this, std::placeholders::_1, std::placeholders::_2));
 	
 	Reconnect();
-	
 };
 
 
@@ -47,10 +46,6 @@ bool CRedisServer::Send(uint32_t nCmd)
 		return false;
 	}
 
-	//m_Message->SetCommond(nCmd);
-	//m_Message->SetSize(0);
-
-	//Dispatch(m_pLocalServer, m_Message, nCmd);
 	return true;
 };
 bool CRedisServer::Send(uint32_t nCmd, std::string str)
@@ -60,26 +55,9 @@ bool CRedisServer::Send(uint32_t nCmd, std::string str)
 		return false;
 	}
 
-	//m_Message->SetCommond(nCmd);
-	//m_Message->SetSize(str.length());
-	//memcpy(m_Message->GetData().get(), str.c_str(), m_Message->GetSize());
-
-	//Dispatch(m_pLocalServer, m_Message, nCmd);
 	return true;
 };
-/*
-bool CRedisServer::Send(uint32_t nCmd, std::shared_ptr<CMessage> msg)
-{
-	if (!m_Redis.IsOnline())
-	{
-		return false;
-	}
 
-	//msg->SetCommond(nCmd);
-	//Dispatch(m_pLocalServer, msg, msg->GetCommond());
-	return true;
-};
-*/
 void CRedisServer::SendCall(uint32_t nLength)
 {
 	if (!m_Redis.IsOnline())
@@ -108,7 +86,7 @@ ReturnType CRedisServer::OnLogin(int nClientID, std::shared_ptr<CMessage> msg)
 	p >> strAccount;
 	std::string strPassword;
 	p >> strPassword;
-	std::cout << "[RedisServer] " << __FUNCTION__ << " : Account:" << strAccount << " Password:" << strPassword << std::endl;
+	CEasylog::GetInstance()->info("[RedisServer] ", __FUNCTION__,"Account:", strAccount,"Password:", strPassword);
 
 	ReplyAccountLogin reply;
 

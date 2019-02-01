@@ -1,6 +1,10 @@
 x86 debug
-libnetcore_x86_debug.lib;json_x86_debug.lib;libprotobuf_x86_debug.lib;hiredis_x86_debug.lib;Win32_Interop_x86_debug.lib;
+libmysql_x86.lib;libnetcore_x86_debug.lib;json_x86_debug.lib;libprotobuf_x86_debug.lib;hiredis_x86_debug.lib;Win32_Interop_x86_debug.lib;
 x86 release
-libnetcore_x86_release.lib;json_x86_release.lib;libprotobuf_x86_release.lib;hiredis_x86_release.lib;Win32_Interop_x86_release.lib;
+libmysql_x86.lib;libnetcore_x86_release.lib;json_x86_release.lib;libprotobuf_x86_release.lib;hiredis_x86_release.lib;Win32_Interop_x86_release.lib;
 x64 debug
 x64 release
+
+
+libmysql_x86.dll
+  ”√5.7.21∞Ê±æ

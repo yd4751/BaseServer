@@ -2,6 +2,7 @@
 #define __H_MESSAGE_DEFINE_H__
 #include <cstdint>
 #include <string>
+#include <map>
 using std::string;
 namespace MessageDefine
 {
@@ -57,11 +58,30 @@ namespace MessageDefine
 	{
 		uint32_t				id;
 		string					account;
-		string					nick_name;
-		string					create_date;
 		
 		ReplyAccountCreate() {}
 	}ReplyAccountCreate;
+
+	//##### AccountUpdate  -  账户更新
+	//request
+	typedef struct RequestAccountUpdate
+	{
+		uint32_t				id;
+		std::map<std::string, std::string>	updateInfo;
+		RequestAccountUpdate()
+		{
+			id = -1;
+			updateInfo.clear();
+		}
+		
+	}RequestAccountUpdate;
+	//Reply
+	typedef struct ReplyAccountUpdate:
+		public ReplyBaseInfo
+	{
+		uint32_t				id;
+		ReplyAccountUpdate() {}
+	}ReplyAccountUpdate;
 
 	//##### AccountLogin  -  账户登录
 	//AccountLogin

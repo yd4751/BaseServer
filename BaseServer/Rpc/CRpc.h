@@ -49,7 +49,22 @@ public:
 		m_paramBuf.Read(pInput, nSize);
 		return nSize;
 	}
-
+	//
+	void ResetBuf()
+	{
+		m_paramBuf.Reset();
+	}
+	template<typename T, typename... Rest>
+	void SerializeToBufNoReset(T first, Rest... rest)
+	{
+		SerializeParam(first, rest...);
+	}
+	int32_t ReadSerializeData(char* pInput)
+	{
+		uint32_t nSize = m_paramBuf.Size();
+		m_paramBuf.Read(pInput, nSize);
+		return nSize;
+	}
 	template<typename T>
 	void operator >> (T&);
 public:

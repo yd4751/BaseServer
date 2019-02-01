@@ -99,6 +99,10 @@ public:
 	{
 		SetStatus(USER_STATUS_LOGIN);
 	};
+	void Init(int32_t userID, const std::map<std::string, std::string>& info)
+	{
+		SetStatus(USER_STATUS_LOGIN);
+	}
 	void BindConnectID(int32_t clientID)
 	{
 		m_connectID = clientID;

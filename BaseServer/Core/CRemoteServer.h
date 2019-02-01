@@ -13,6 +13,7 @@ class CServerConfig
 {
 public:
 	std::string		password;
+	std::string		account;
 	std::string		ip;
 	uint32_t		port;
 	uint32_t		maxReconnectTime;
@@ -27,11 +28,18 @@ public:
 		this->port = port;
 		maxReconnectTime = DEFAULT_RECONECT_TIMES;
 	}
-	CServerConfig(std::string ip, uint32_t port,std::string password)
+	CServerConfig(const std::string ip, uint32_t port, const std::string password)
 	//	CServerConfig(ip, port)  这样写赋值也是对的，但是这个传参原理是什么？
 	{
 		this->ip = ip;
 		this->port = port;
+		this->password = password;
+	}
+	CServerConfig(const std::string ip, uint32_t port, const std::string account, const std::string password)
+	{
+		this->ip = ip;
+		this->port = port;
+		this->account = account;
 		this->password = password;
 	}
 };
@@ -43,7 +51,7 @@ class CRemoteServer:
 public:
 	
 	int										m_ClientID;
-	std::weak_ptr<CLoginHall>					m_pGame;
+	std::weak_ptr<CLoginHall>				m_pGame;
 	
 	CServerConfig							m_config;
 	RemoteServerType						m_emType;

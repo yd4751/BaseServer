@@ -32,26 +32,70 @@ void OnTimeOut(int timerID)
 };
 
 static bool bInit = false;
+int32_t nServerID = -1;
+
 void Init()
 {
 	if (bInit)
 	{
 		return;
 	}
-	int32_t nServerID = -1;
+	
 	NetCore::Config(0);
 	NetCore::RegisterEvnetHandler(NetWorkEvent);
 	NetCore::Start();
 	
 	nServerID = NetCore::Connect("127.0.0.1", 9999);
+	//LoginTest();
+	bInit = true;
+};
+
+void LoginTest()
+{
+	if (nServerID < 0)
+	{
+		std::cout << "server is disconnect!" << std::endl;
+		return;
+	}
+
 	Json::Value sendStr;
 	sendStr["account"] = "bighat";
 	sendStr["password"] = "bighat";
 	std::string str = sendStr.toStyledString();
 	NetCore::SendData(nServerID, 5004, str.c_str(), str.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
-	bInit = true;
-};
+}
+void AccountCreate()
+{
+	if (nServerID < 0)
+	{
+		std::cout << "server is disconnect!" << std::endl;
+		return;
+	}
 
+	Json::Value sendStr;
+	sendStr["account"] = "create_bighat";
+	sendStr["password"] = "123456";
+	std::string str = sendStr.toStyledString();
+	NetCore::SendData(nServerID, 5001, str.c_str(), str.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
+}
+void AccountUpdate()
+{
+	if (nServerID < 0)
+	{
+		std::cout << "server is disconnect!" << std::endl;
+		return;
+	}
+	NetCore::SendData(nServerID, 5002, nullptr, 0, NetCore::ProtocolType::PROTO_TYPE_JSON);
+}
+void AccountDelete()
+{
+	if (nServerID < 0)
+	{
+		std::cout << "server is disconnect!" << std::endl;
+		return;
+	}
+	NetCore::SendData(nServerID, 5003, nullptr, 0, NetCore::ProtocolType::PROTO_TYPE_JSON);
+}
 int main()
 {
 #if 1
@@ -68,11 +112,24 @@ int main()
 		else if (input == "stop")
 		{
 			NetCore::Stop();
+			nServerID = -1;
 			bInit = false;
 		}
 		else if (input == "exit")
 		{
 			break;
+		}
+		else if (input == "create")
+		{
+			AccountCreate();
+		}
+		else if (input == "update")
+		{
+			AccountUpdate();
+		}
+		else if (input == "delete")
+		{
+			AccountDelete();
 		}
 	}
 #else

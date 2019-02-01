@@ -111,25 +111,38 @@ protected:
 public:
 	ReturnType Dispatch(int nClientID, std::shared_ptr<CMessage>);
 
-	//RemoteServer Reply
+	//RedisServer Reply
 public:
 	ReturnType OnRedisReplyLogin(int nClientID, std::shared_ptr<CMessage>);
 	ReturnType OnRedisReplyLogout(int nClientID, std::shared_ptr<CMessage>);
 
+	//DataBaseServer Reply
+public:
+	//Account: create update del
+	ReturnType OnDataBaseReplyAccountCreate(int nClientID, std::shared_ptr<CMessage>);
+	ReturnType OnDataBaseReplyAccountUpdate(int nClientID, std::shared_ptr<CMessage>);
+	ReturnType OnDataBaseReplyAccountDelete(int nClientID, std::shared_ptr<CMessage>);
+	//
+	ReturnType OnDataBaseReplyLogin(int nClientID, std::shared_ptr<CMessage>);
+	ReturnType OnDataBaseReplyLogout(int nClientID, std::shared_ptr<CMessage>);
+
+	//客户端业务
 	//连接登录登出
 public:
 	//
 	bool CheckIsLoginUser(const std::string account);
 	//玩家是否允许退出
 	bool CheckCanLogout(std::shared_ptr<CBaseUser>) { return true; }
-	//
 	ReturnType OnDisconnect(int nClientID, std::shared_ptr<CMessage>);
-	//
 	ReturnType OnLogin(int nClientID, std::shared_ptr<CMessage>);
-	//
 	ReturnType OnLogout(int nClientID, std::shared_ptr<CMessage>);
 
-	//
+	//账户管理
+public:
+	ReturnType OnAccountCreate(int nClientID, std::shared_ptr<CMessage>);
+	ReturnType OnAccountUpdate(int nClientID, std::shared_ptr<CMessage>);
+	ReturnType OnAccountDelete(int nClientID, std::shared_ptr<CMessage>);
+
 public:
 	void UpdatePlaying(int32_t nUid)
 	{

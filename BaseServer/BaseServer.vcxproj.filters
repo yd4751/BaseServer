@@ -93,6 +93,9 @@
     <ClInclude Include="..\code\CNetCoreInterface.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Core\CSQLInterface.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\CBuffer.cpp">
@@ -159,6 +162,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Server\Login\CLoginHallProto.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\CSQLInterface.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

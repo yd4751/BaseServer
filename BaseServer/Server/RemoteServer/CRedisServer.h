@@ -21,6 +21,7 @@ public:
 	virtual bool Send(uint32_t nCmd);
 	virtual bool Send(uint32_t nCmd, std::string str);
 	virtual void SendCall(uint32_t nLength);
+
 	//消息处理
 public:
 	ReturnType OnLogin(int nClientID, std::shared_ptr<CMessage>);

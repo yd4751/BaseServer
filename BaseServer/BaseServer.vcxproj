@@ -92,7 +92,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)..\libs;$(SolutionDir)\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>lua53_x86.lib;libnetcore_x86_debug.lib;json_x86_debug.lib;libprotobuf_x86_debug.lib;hiredis_x86_debug.lib;Win32_Interop_x86_debug.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libmysql_x86.lib;lua53_x86.lib;libnetcore_x86_debug.lib;json_x86_debug.lib;libprotobuf_x86_debug.lib;hiredis_x86_debug.lib;Win32_Interop_x86_debug.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -102,6 +102,9 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>libmysql_x64.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -147,6 +150,7 @@
     <ClInclude Include="Core\CRedis.h" />
     <ClInclude Include="Core\CRemoteServer.h" />
     <ClInclude Include="Core\CScriptInterface.h" />
+    <ClInclude Include="Core\CSQLInterface.h" />
     <ClInclude Include="Core\CTimerTask.h" />
     <ClInclude Include="Core\global_include.h" />
     <ClInclude Include="Core\NetWorkSerilize.h" />
@@ -170,6 +174,7 @@
     <ClCompile Include="Core\CRedis.cpp" />
     <ClCompile Include="Core\CRemoteServer.cpp" />
     <ClCompile Include="Core\CScriptInterface.cpp" />
+    <ClCompile Include="Core\CSQLInterface.cpp" />
     <ClCompile Include="Core\CTimerTask.cpp" />
     <ClCompile Include="Core\NetWorkSerilize.cpp" />
     <ClCompile Include="ProtocolParse\CProtocolParse.cpp" />

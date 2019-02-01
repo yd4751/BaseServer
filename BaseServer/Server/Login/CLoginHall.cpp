@@ -18,10 +18,20 @@ void CLoginHall::Start()
 	//
 	RegisterMessage(ClientRequest::LOGIN_SERVER, std::bind(&CLoginHall::OnLogin, this, std::placeholders::_1, std::placeholders::_2));
 	RegisterMessage(ClientRequest::LOGOUT_SERVER, std::bind(&CLoginHall::OnLogout, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(ClientRequest::ACCOUNT_CREATE, std::bind(&CLoginHall::OnAccountCreate, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(ClientRequest::ACCOUNT_UPDATE, std::bind(&CLoginHall::OnAccountUpdate, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(ClientRequest::ACCOUNT_DEL, std::bind(&CLoginHall::OnAccountDelete, this, std::placeholders::_1, std::placeholders::_2));
 
 	//Redis服务器回复消息
 	RegisterMessage(RedisServerReply::REDIS_REPLY_LOGIN, std::bind(&CLoginHall::OnRedisReplyLogin, this, std::placeholders::_1, std::placeholders::_2));
 	RegisterMessage(RedisServerReply::REDIS_REPLY_LOGOUT, std::bind(&CLoginHall::OnRedisReplyLogout, this, std::placeholders::_1, std::placeholders::_2));
+
+	//数据库服务回复
+	RegisterMessage(DatabaseServerReply::DATABASE_REPLY_LOGIN, std::bind(&CLoginHall::OnDataBaseReplyLogin, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(DatabaseServerReply::DATABASE_REPLY_LOGOUT, std::bind(&CLoginHall::OnDataBaseReplyLogout, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(DatabaseServerReply::DATABASE_REPLY_ACCOUNT_CREATE, std::bind(&CLoginHall::OnDataBaseReplyAccountCreate, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(DatabaseServerReply::DATABASE_REPLY_ACCOUNT_UPDATE, std::bind(&CLoginHall::OnDataBaseReplyAccountUpdate, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(DatabaseServerReply::DATABASE_REPLY_ACCOUNT_DEL, std::bind(&CLoginHall::OnDataBaseReplyAccountDelete, this, std::placeholders::_1, std::placeholders::_2));
 
 	//连接登录服务器  //外网redis信息：  95.179.238.125   8000  bighat
 	std::shared_ptr<CRedisServer> pRedisServer = std::make_shared<CRedisServer>(
@@ -31,17 +41,17 @@ void CLoginHall::Start()
 		);
 	m_RemoteServers[RemoteServerType::SERVER_TYPE_REDIS] = std::dynamic_pointer_cast<CRemoteServer>(pRedisServer);
 	if (m_RemoteServers[RemoteServerType::SERVER_TYPE_REDIS].get()) m_RemoteServers[RemoteServerType::SERVER_TYPE_REDIS]->Start();
-	/*//连接RemoteServer
+	//连接RemoteServer
 	{
 		//连接数据库服务器
 		std::shared_ptr<CDataServer> pDataServer = std::make_shared<CDataServer>(
-			CServerConfig("127.0.0.1", 3001),
-			SERVER_TYPE_DATABASE,
+			CServerConfig("127.0.0.1", 3306,"root","123456"),
+			RemoteServerType::SERVER_TYPE_DATABASE,
 			shared_from_this()
 			);
-		m_RemoteServers[RemoteServerType::SERVER_TYPE_LOGIN] = std::dynamic_pointer_cast<CRemoteServer>( pDataServer );
+		m_RemoteServers[RemoteServerType::SERVER_TYPE_DATABASE] = std::dynamic_pointer_cast<CRemoteServer>( pDataServer );
 		if(m_RemoteServers[RemoteServerType::SERVER_TYPE_DATABASE].get()) m_RemoteServers[RemoteServerType::SERVER_TYPE_DATABASE]->Start();
-	}*/
+	}
 
 	//Script
 	CScriptInterface::GetInstance()->InitScript();
@@ -91,74 +101,10 @@ ReturnType CLoginHall::OnDisconnect(int nClientID, std::shared_ptr<CMessage> msg
 	return OnLogout(nClientID,nullptr);
 };
 
-//RemoteServer Reply
-ReturnType CLoginHall::OnRedisReplyLogin(int nClientID, std::shared_ptr<CMessage> msg)
-{
-	std::cout << "[CLoginHall] " << __FUNCTION__ << std::endl;
-
-	CRpc p(msg->GetDataBuf(), msg->nMsgLength);
-	uint32_t nCmd;
-	p >> nCmd;
-
-	ReplyAccountLogin reply;
-	p >> reply.code;
-	p >> reply.account;
-	if (reply.code == ReplyErrorCode::REPLY_CODE_SUCCESS)
-	{
-		p >> reply.id;
-		p >> reply.nick_name;
-	}
-
-	auto itPreLoginInfo = m_PreLoginUser.find(reply.account);
-	if (itPreLoginInfo == m_PreLoginUser.end())
-	{
-		//无效玩家	(可能已掉线)
-		return ReturnType::Return_true;
-	}
-
-	int32_t nConnectID = itPreLoginInfo->second;
-	m_PreLoginUser.erase(itPreLoginInfo);
-	std::cout << "cursize:" << m_PreLoginUser.size() << " ::" << nConnectID <<std::endl;
-
-	if (reply.code != ReplyErrorCode::REPLY_CODE_SUCCESS)
-	{
-		//登录失败
-		std::string str = ProtoParse::MakePacket(NetCore::ProtocolType::PROTO_TYPE_JSON, reply);
-		CBaseUser::Send(nConnectID, ServerRepley::REPLY_RESULT_LOGIN_SERVER, str);
-		return ReturnType::Return_true;
-	}
-
-	std::shared_ptr<CBaseUser> pLoginUser = m_UserManager.AddUser(reply.id);
-	if (!pLoginUser)
-	{
-		//未知异常
-		reply.code = ReplyErrorCode::REPLY_CODE_ERROR_UNDEFINED;
-		std::string str = ProtoParse::MakePacket(NetCore::ProtocolType::PROTO_TYPE_JSON, reply);
-		CBaseUser::Send(nConnectID, ServerRepley::REPLY_RESULT_LOGIN_SERVER, str);
-		return ReturnType::Return_true;
-	}
-
-	pLoginUser->Init(reply.id);
-	//
-	pLoginUser->GetUserIdentify().account = reply.account;
-	pLoginUser->BindConnectID(nConnectID);
-
-	std::string str = ProtoParse::MakePacket(NetCore::ProtocolType::PROTO_TYPE_JSON, reply);
-	pLoginUser->Send(ServerRepley::REPLY_RESULT_LOGIN_SERVER, str);
-
-	return ReturnType::Return_true;
-};
-ReturnType CLoginHall::OnRedisReplyLogout(int nClientID, std::shared_ptr<CMessage>)
-{
-	return ReturnType::Return_true;
-};
-
 //
 ReturnType CLoginHall::OnLogin(int nClientID, std::shared_ptr<CMessage> msg)
 {
 	std::cout << __FUNCTION__ << std::endl;
-	Json::Reader reader;
-	Json::Value packet;
 	
 	RequestAccountLogin req = ProtoParse::Parse<RequestAccountLogin>(msg);
 	if (m_PreLoginUser.find(req.account) != m_PreLoginUser.end())
@@ -223,4 +169,49 @@ ReturnType CLoginHall::OnLogout(int nClientID, std::shared_ptr<CMessage> msg)
 	}
 
 	return ReturnType::Return_false;
+};
+
+ReturnType CLoginHall::OnAccountCreate(int nClientID, std::shared_ptr<CMessage> msg)
+{
+	CEasylog::GetInstance()->info("[CLoginHall]",__FUNCTION__);
+
+	RequestAccountCreate request = ProtoParse::Parse<RequestAccountCreate>(msg);
+	if (request.account.empty() || request.password.empty())
+	{
+		CEasylog::GetInstance()->warn("invalid param!");
+		return ReturnType::Return_true;
+	}
+
+	if (m_PreLoginUser.find(request.account) != m_PreLoginUser.end())
+	{
+		CEasylog::GetInstance()->warn("repeat request!");
+		return ReturnType::Return_true;
+	}
+
+	m_PreLoginUser[request.account] = nClientID;
+	//投递请求,需要提供账户类型
+	GetRemoteServer(RemoteServerType::SERVER_TYPE_DATABASE)->Call((uint32_t)DatabaseServerRequest::DATABASE_REQUEST_ACCOUNT_CREATE,1, request.account, request.password);
+	return ReturnType::Return_true;
+};
+ReturnType CLoginHall::OnAccountUpdate(int nClientID, std::shared_ptr<CMessage> msg)
+{
+	CEasylog::GetInstance()->info("[CLoginHall]", __FUNCTION__);
+
+
+	//协议处理
+	//...
+
+	//投递请求
+	GetRemoteServer(RemoteServerType::SERVER_TYPE_DATABASE)->Call((uint32_t)DatabaseServerRequest::DATABASE_REQUEST_ACCOUNT_UPDATE);
+	return ReturnType::Return_true;
+};
+ReturnType CLoginHall::OnAccountDelete(int nClientID, std::shared_ptr<CMessage>)
+{
+	CEasylog::GetInstance()->info("[CLoginHall]", __FUNCTION__);
+	//协议处理
+	//...
+
+	//投递请求
+	GetRemoteServer(RemoteServerType::SERVER_TYPE_DATABASE)->Call((uint32_t)DatabaseServerRequest::DATABASE_REQUEST_ACCOUNT_DEL);
+	return ReturnType::Return_true;
 };
