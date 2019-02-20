@@ -8,10 +8,18 @@ end
 function BaseUser:Init(uid)
     self.m_uid = uid
     Log("New User:" .. self.m_uid)
+	--请求玩家信息
+	self:Update({})
+
 end
 
+function BaseUser:OnUpdateUserInfo(info)
+	Log("OnUpdateUserInfo:" .. self.m_uid)
+	dump(info)
+end
 function BaseUser:Update(info)
-    Log("User update")
+    Log(self.m_uid .. "  User update")
+	UpdateUserInfo(self.m_uid,info)
 end
 
 function BaseUser:BindRoom(roomid)

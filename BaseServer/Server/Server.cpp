@@ -14,6 +14,7 @@ using namespace MessageDefine;
 using namespace ProtoParse;
 
 
+//直接以杀进程信息退出，过程会比较慢，如何处理这个杀进程形式...
 
 int main()
 {	
@@ -30,10 +31,13 @@ int main()
 	CLoginHall::GetInstance()->Start();
 	NetCore::Start();
 
+	std::cout << "===Main Thread:" << std::this_thread::get_id() << std::endl;
 	while (true)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
+
+	NetCore::Stop();
 #else
 	CRedis test;
 	test.Connect("127.0.0.1",8888,"bighat");

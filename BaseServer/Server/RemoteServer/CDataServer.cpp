@@ -19,6 +19,9 @@ void CDataServer::Reconnect()
 	{
 		CEasylog::GetInstance()->info("[DataServer]","connect mysql success!");
 
+		//设置编码格式
+		m_sql.DoSql("set names utf8", -1);
+
 		if (m_sql.SelectDataBase("bighat"))
 		{
 			CEasylog::GetInstance()->info("[DataServer]","choose db success!");
@@ -33,6 +36,8 @@ void CDataServer::Start()
 {
 	RegisterMessage(DatabaseServerRequest::DATABASE_REQUEST_LOGIN, std::bind(&CDataServer::OnLogin, this, std::placeholders::_1, std::placeholders::_2));
 	RegisterMessage(DatabaseServerRequest::DATABASE_REQUEST_LOGOUT, std::bind(&CDataServer::OnLogout, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(DatabaseServerRequest::DATABASE_REQUEST_GUEST_LOGIN, std::bind(&CDataServer::OnGuestLogin, this, std::placeholders::_1, std::placeholders::_2));
+	
 	//账户管理
 	RegisterMessage(DatabaseServerRequest::DATABASE_REQUEST_ACCOUNT_CREATE, std::bind(&CDataServer::OnAccountCreate, this, std::placeholders::_1, std::placeholders::_2));
 	RegisterMessage(DatabaseServerRequest::DATABASE_REQUEST_ACCOUNT_UPDATE, std::bind(&CDataServer::OnAccountUpdate, this, std::placeholders::_1, std::placeholders::_2));
@@ -62,12 +67,87 @@ void CDataServer::SendCall(uint32_t nLength)
 	msg->nMsgLength = nLength;
 	Dispatch(-1, msg);
 };
+ReturnType CDataServer::OnGuestLogin(int nClientID, std::shared_ptr<CMessage> msg)
+{
+	CRpc p(msg->GetDataBuf(), msg->nMsgLength);
+	uint32_t nCmd;
+	p >> nCmd;
+	uint32_t nReqClientID;
+	p >> nReqClientID;
 
+	CEasylog::GetInstance()->info("[DataServer] ", __FUNCTION__);
+
+	std::ostringstream strSql;
+	strSql << "call GuestUserLogin(";
+	strSql << "@ret,@retUserID)";
+
+	bool bRet = m_sql.DoSql(strSql.str(), -1);
+	if (bRet)
+	{
+		bRet = m_sql.DoSql("select @ret as \"Code\",@retUserID \"NewID\"", 1);
+	}
+	
+	auto itRlt = m_sql.GetData();
+
+	uint32_t nReplyCmd = DatabaseServerReply::DATABASE_REPLY_GUEST_LOGIN;
+	uint32_t nReplySize = 0;
+	uint32_t nCode = ReplyErrorCode::REPLY_CODE_SUCCESS;
+	std::map<std::string, std::string> pUserInfo;
+	int32_t nUserID;
+	//fail
+	if (!bRet)
+	{
+		nCode = ReplyErrorCode::REPLY_CODE_ERROR_UNDEFINED;
+	}
+	//fail
+	if (itRlt.empty() || itRlt[0].find("Code") == itRlt[0].end())
+	{
+		nCode = ReplyErrorCode::REPLY_CODE_ACCOUNT_NOT_EXIST;
+	}
+	//fail, database output formate is error
+	else if (itRlt[0].find("NewID") == itRlt[0].end())
+	{
+		nCode = ReplyErrorCode::REPLY_CODE_ACCOUNT_NOT_EXIST;
+	}
+	else
+	{
+		std::string strUserID = itRlt[0].find("NewID")->second;
+		nUserID = ::atoi(strUserID.c_str());
+		CEasylog::GetInstance()->info("[DataServer]", "UserLogin:", strUserID);
+
+		//get user info
+		GetUserInfo(nUserID, pUserInfo);
+		if (pUserInfo.empty())
+		{
+			CEasylog::GetInstance()->warn("[DataServer] user:", strUserID, "get empty user info!");
+			nCode = ReplyErrorCode::REPLY_CODE_ACCOUNT_ERROR_INFO;
+		}
+	}
+
+	p.ResetBuf();
+	p.SerializeToBufNoReset(nReqClientID, nCode);
+	if (nCode == ReplyErrorCode::REPLY_CODE_SUCCESS)
+	{
+		p.SerializeToBufNoReset(nUserID, pUserInfo.size());
+		//填充用户信息
+		for (auto it : pUserInfo)
+		{
+			p.SerializeToBufNoReset(it.first, it.second);
+		}
+	}
+
+	nReplySize = p.ReadSerializeData(m_pReplyMessage->GetDataBuf());
+	m_pReplyMessage->nCmd = nReplyCmd;
+	m_pReplyMessage->nMsgLength = nReplySize;
+	return ReturnType::Return_true;
+}
 ReturnType CDataServer::OnLogin(int nClientID, std::shared_ptr<CMessage> msg)
 {
 	CRpc p(msg->GetDataBuf(), msg->nMsgLength);
 	uint32_t nCmd;
 	p >> nCmd;
+	uint32_t nReqClientID;
+	p >> nReqClientID;
 
 	uint32_t nLoginType;
 	p >> nLoginType;
@@ -121,7 +201,7 @@ ReturnType CDataServer::OnLogin(int nClientID, std::shared_ptr<CMessage> msg)
 	}
 
 	p.ResetBuf();
-	p.SerializeToBufNoReset(nCode, strAccount);
+	p.SerializeToBufNoReset(nReqClientID,nCode, strAccount);
 	if (nCode == ReplyErrorCode::REPLY_CODE_SUCCESS)
 	{
 		p.SerializeToBufNoReset(nUserID, pUserInfo.size());

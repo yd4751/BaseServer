@@ -42,7 +42,7 @@ function BaseRoom:OnReconnect(pUser)
 end
 
 function BaseRoom:OnUpdateUserInfo(pUser,info)
-    pUser:Update(info)
+    pUser:OnUpdateUserInfo(info)
 end
 
 --

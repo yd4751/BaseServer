@@ -82,6 +82,8 @@ ReturnType CRedisServer::OnLogin(int nClientID, std::shared_ptr<CMessage> msg)
 	CRpc p(msg->GetDataBuf(), msg->nMsgLength);
 	uint32_t nCmd;
 	p >> nCmd;
+	uint32_t nReqClientID;
+	p >> nReqClientID;
 	std::string strAccount;
 	p >> strAccount;
 	std::string strPassword;
@@ -134,7 +136,8 @@ ReturnType CRedisServer::OnLogin(int nClientID, std::shared_ptr<CMessage> msg)
 	uint32_t nReplySize = 0;
 	if (ReplyErrorCode::REPLY_CODE_SUCCESS == reply.code)
 	{
-		nReplySize = p.SerializeToBuf(m_pReplyMessage->GetDataBuf(), nReplyCmd,
+		nReplySize = p.SerializeToBuf(m_pReplyMessage->GetDataBuf(),
+			nReqClientID,
 			reply.code,
 			reply.account,
 			reply.id,
@@ -143,7 +146,8 @@ ReturnType CRedisServer::OnLogin(int nClientID, std::shared_ptr<CMessage> msg)
 	}
 	else
 	{
-		nReplySize = p.SerializeToBuf(m_pReplyMessage->GetDataBuf(), nReplyCmd,
+		nReplySize = p.SerializeToBuf(m_pReplyMessage->GetDataBuf(),
+			nReqClientID,
 			reply.code,
 			reply.account
 		);

@@ -60,17 +60,18 @@ public:
 	}
 	~CTimer()
 	{
-		m_Timers.Clear();
 		Stop();
 	}
 
 public:
 	void Start()
 	{
+		m_testName = "Timer";
 		CBaseWorker::Start();
 	}
 	void Stop()
 	{
+		m_Timers.Clear();
 		CBaseWorker::Stop();
 	}
 	virtual bool Work()

@@ -44,16 +44,21 @@ end
 
 function BaseRoomManager:OnUpdateUserInfo(uid,info)
     local pUser = self.m_UserManager:Get(uid)
-    if pUsr == nil then
+    if pUser == nil then
+		Log("UpdateUserInfoError: can not find user " .. uid)
         return 
     end
 
+	pUser:OnUpdateUserInfo(info)
+	--[[
     local nRoomID = pUser:GetRoomID()
     if nRoomID == nil then
+		Log("UpdateUserInfoError: can not find bind room , uid " .. uid)
         return 
     end
 
     self.m_Rooms[nRoomID]:OnUpdateUserInfo(pUser,info)
+	]]
 end
 
 function BaseRoomManager:OnMessage( uid,cmd,message)

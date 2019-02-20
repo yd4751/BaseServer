@@ -9,9 +9,11 @@ function Room:Login(pUser)
     self:super(Room, "Login",pUser);
     --此处添加代码
     --...
+
 	Log("Handler room login")
 	strReply = {}
 	strReply["code"] = 0
+	strReply["roomid"] = self.m_RoomID
 
 	self:Send(pUser,ServerReply.ROOM_LOGIN,json.encode(strReply))
 

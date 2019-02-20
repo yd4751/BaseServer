@@ -11,12 +11,13 @@ namespace NetCore
 #include <chrono>
 #include <json/json.h>
 #include "CTools.h"
+static bool bInit = false;
+int32_t nServerID = -1;
 
 bool NetWorkEvent(int nClientID, int nCmd, int nMsgLength, char* msgBuf, NetCore::ProtocolType type)
 {
 	std::cout << __FUNCTION__ << ": " << nClientID << " Cmd:" << nCmd << "  Length:" << nMsgLength << std::endl;
-	if(nMsgLength > 0)
-		std::cout << msgBuf << std::endl;
+	
 	//std::string reply("1234567890");
 	//NetCore::SendData(nClientID, 1234, reply.c_str(), reply.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
 
@@ -30,9 +31,6 @@ void OnTimeOut(int timerID)
 {
 	std::cout << __FUNCTION__ << " : " << Tools::GetCurDateTime() << std::endl;
 };
-
-static bool bInit = false;
-int32_t nServerID = -1;
 
 void Init()
 {
@@ -96,6 +94,24 @@ void AccountDelete()
 	}
 	NetCore::SendData(nServerID, 5003, nullptr, 0, NetCore::ProtocolType::PROTO_TYPE_JSON);
 }
+void GuestLogin()
+{
+	if (nServerID < 0)
+	{
+		std::cout << "server is disconnect!" << std::endl;
+		return;
+	}
+	NetCore::SendData(nServerID, 5006, nullptr, 0, NetCore::ProtocolType::PROTO_TYPE_JSON);
+}
+void LoginRoom()
+{
+	if (nServerID < 0)
+	{
+		std::cout << "server is disconnect!" << std::endl;
+		return;
+	}
+	NetCore::SendData(nServerID, 1000, nullptr, 0, NetCore::ProtocolType::PROTO_TYPE_JSON);
+}
 int main()
 {
 #if 1
@@ -130,6 +146,14 @@ int main()
 		else if (input == "delete")
 		{
 			AccountDelete();
+		}
+		else if (input == "guest")
+		{
+			GuestLogin();
+		}
+		else if (input == "loginroom")
+		{
+			LoginRoom();
 		}
 	}
 #else

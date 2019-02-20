@@ -31,6 +31,7 @@ protected:
 public:
 	ReturnType OnLogin(int nClientID, std::shared_ptr<CMessage>);
 	ReturnType OnLogout(int nClientID, std::shared_ptr<CMessage>);
+	ReturnType OnGuestLogin(int nClientID, std::shared_ptr<CMessage>);
 
 	//’Àªßπ‹¿Ì
 public:

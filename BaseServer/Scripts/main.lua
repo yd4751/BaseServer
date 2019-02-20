@@ -2,22 +2,28 @@ require("RoomManager.BaseRoomManager")
 
 local m_BaseRoomManager = nil 
 
-function OnDisconnect(uid)
+function OnDisconnect(nUid)
+	local uid = math.ceil(nUid)
     Log("[Lua] Disconnect:" .. uid)
     m_BaseRoomManager:OnDisconnect(uid)
 end
 
-function OnReconnect(uid)
+function OnReconnect(nUid)
+	local uid = math.ceil(nUid)
     Log("[Lua] Reconnect:" .. uid)
     m_BaseRoomManager:OnReconnect(uid)
 end
 
-function OnUpdateUserInfo(uid,info)
-    Log("[Lua] UpdateUserInfo:" .. uid .. ":" .. info)
+function OnUpdateUserInfo(nUid,info)
+	local uid = math.ceil(nUid)
+    Log("[Lua] UpdateUserInfo:" .. uid)
     m_BaseRoomManager:OnUpdateUserInfo(uid,info)
 end
 
-function OnMessage( uid,cmd,message )
+function OnMessage( nUid,nCmd,message )
+	local uid = math.ceil(nUid)
+	local cmd = math.ceil(nCmd)
+
 	Log("[Lua] OnMessage:" .. uid .. ":" .. cmd)
 	return m_BaseRoomManager:OnMessage(uid,cmd,message)
 end

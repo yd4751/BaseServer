@@ -110,6 +110,7 @@ public:
 
 	void Start(const CNetWorkConfig& config)
 	{
+		m_testName = "NetWork";
 		if (CBaseWorker::IsRunning())
 		{
 			CEasylog::GetInstance()->warn("NetWork is already running...");
@@ -146,9 +147,11 @@ public:
 	{
 		CTimer::GetInstance()->Stop();
 		if(m_Acceptor) m_Acceptor->Stop();
+
 		m_CommuniterGroups.Clear();
 		m_listenSocks.clear();
 		m_events.Clear();
+
 		CBaseWorker::Stop();
 	}
 	void OnNewConnection(int32_t id,std::shared_ptr<CMessage> msg)

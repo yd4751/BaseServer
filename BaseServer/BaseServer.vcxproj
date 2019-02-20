@@ -186,7 +186,10 @@
     <ClCompile Include="Server\CConfig.cpp" />
     <ClCompile Include="Server\Login\CLoginHall.cpp" />
     <ClCompile Include="Server\Login\CLoginHallExtern.cpp" />
-    <ClCompile Include="Server\Login\CLoginHallProto.cpp" />
+    <ClCompile Include="Server\Login\CloginHallProtoClient.cpp" />
+    <ClCompile Include="Server\Login\CLoginHallProtoDataBase.cpp" />
+    <ClCompile Include="Server\Login\CLoginHallProtoRedis.cpp" />
+    <ClCompile Include="Server\Login\CLoginHallScript.cpp" />
     <ClCompile Include="Server\RemoteServer\CDataServer.cpp" />
     <ClCompile Include="Server\RemoteServer\CRedisServer.cpp" />
     <ClCompile Include="Server\Server.cpp" />

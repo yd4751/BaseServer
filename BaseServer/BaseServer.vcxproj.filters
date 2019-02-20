@@ -161,10 +161,19 @@
     <ClCompile Include="Server\Login\CLoginHallExtern.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Server\Login\CLoginHallProto.cpp">
+    <ClCompile Include="Core\CSQLInterface.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Core\CSQLInterface.cpp">
+    <ClCompile Include="Server\Login\CLoginHallProtoRedis.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Server\Login\CLoginHallProtoDataBase.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Server\Login\CLoginHallScript.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Server\Login\CloginHallProtoClient.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

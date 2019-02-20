@@ -59,15 +59,62 @@ public:
 	}
 };
 
+class CValueInfo
+{
+public:
+	CValueInfo() 
+	{
+		strValue = "";
+		intValue = 0;
+	}
+	template<typename T>
+	CValueInfo(T value)
+	{
+		Set(value);
+	}
+public:
+	enum ValueType
+	{
+		TYPE_INTEGER,
+		TYPE_STRING,
+	}	m_type;
+
+	std::string		strValue;
+	int64_t			intValue;
+
+	void Set(const char* value)
+	{
+		strValue.assign(value);
+		m_type = ValueType::TYPE_STRING;
+	}
+	void Set(const std::string value)
+	{
+		strValue = value;
+		m_type = ValueType::TYPE_STRING;
+	}
+	void Set(int64_t value)
+	{
+		intValue = value;
+		m_type = ValueType::TYPE_INTEGER;
+	}
+
+	std::string GetString() { return strValue; }
+	int64_t GetInteger() { return intValue; }
+};
+
 class CBaseUser
 {
 	CUesrIdentify			m_identify;
 	UserStatus				m_curStatus;
 	int32_t					m_connectID;
+	std::map<std::string, CValueInfo>		m_info;
 
 public:
 	CBaseUser();
-	CBaseUser(int nUid) { m_identify.userID = nUid; };
+	CBaseUser(int nUid) { 
+		m_identify.userID = nUid; 
+		m_info.clear();
+	};
 	virtual ~CBaseUser();
 
 protected:
@@ -95,14 +142,8 @@ public:
 	}
 
 public:
-	void Init(int32_t id)
-	{
-		SetStatus(USER_STATUS_LOGIN);
-	};
-	void Init(int32_t userID, const std::map<std::string, std::string>& info)
-	{
-		SetStatus(USER_STATUS_LOGIN);
-	}
+	void Init(int32_t id);
+	void Init(int32_t userID, const std::map<std::string, std::string>& info);
 	void BindConnectID(int32_t clientID)
 	{
 		m_connectID = clientID;
@@ -122,47 +163,12 @@ public:
 	UserStatus GetStatus() { return m_curStatus; }
 	int32_t	GetID() { return m_identify.userID; }
 	int32_t GetConnectID() { return m_connectID; }
-	void UpdateStatus(UserStatus status)
-	{
-		m_curStatus = status;
-	}
+	void UpdateStatus(UserStatus status){	m_curStatus = status;	}
 	
-	bool IsUser(UserIdentifyType type, int32_t identify)
-	{
-		switch (type)
-		{
-		case IDENTIFY_TYPE_PHONE:
-			return false;
-		case IDENTIFY_TYPE_UID:
-			return m_identify.userID == identify ? true : false;
-		case IDENTIFY_TYPE_NULL:
-		default:
-			return false;
-		}
-	}
-	bool IsUser(UserIdentifyType type, const std::string identify)
-	{
-		switch (type)
-		{
-		case IDENTIFY_TYPE_ACCOUNT:
-			return m_identify.account == identify ? true : false;
-		case IDENTIFY_TYPE_EMAIL:
-			return m_identify.email == identify ? true : false;
+	bool IsUser(UserIdentifyType type, int32_t identify);
+	bool IsUser(UserIdentifyType type, const std::string identify);
 
-		case IDENTIFY_TYPE_WCHAT:
-			return false;
-		case IDENTIFY_TYPE_QQ:
-			return false;
-		case IDENTIFY_TYPE_NULL:
-		default:
-			return false;
-		}
-	}
-
-	void UpdateInfo(std::string info)
-	{
-		//....
-	}
+	std::map<std::string, CValueInfo> UpdateInfo(const std::map<std::string, CValueInfo>& info);
 };
 
 #endif

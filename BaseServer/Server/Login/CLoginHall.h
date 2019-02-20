@@ -62,8 +62,7 @@ class CLoginHall:
 {
 	std::map<uint32_t, std::shared_ptr<CRemoteServer> >			m_RemoteServers;
 	
-	//std::map<int32_t,CUesrIdentify>							m_PreLoginUser;		//等待登录结果玩家，  UserID/ACCOUNT - ConnectID
-	std::map<std::string,int32_t>								m_PreLoginUser;		//等待登录结果玩家，  UserID/ACCOUNT - ConnectID
+	std::map <int32_t, int32_t>									m_ClientRequestCache;  //ConnectID - RequeCommon
 	CBaseUserManager<CBaseUser>									m_UserManager;
 
 public:
@@ -125,6 +124,7 @@ public:
 	//
 	ReturnType OnDataBaseReplyLogin(int nClientID, std::shared_ptr<CMessage>);
 	ReturnType OnDataBaseReplyLogout(int nClientID, std::shared_ptr<CMessage>);
+	ReturnType OnDataBaseReplyGuestLogin(int nClientID, std::shared_ptr<CMessage>);
 
 	//客户端业务
 	//连接登录登出
@@ -136,6 +136,7 @@ public:
 	ReturnType OnDisconnect(int nClientID, std::shared_ptr<CMessage>);
 	ReturnType OnLogin(int nClientID, std::shared_ptr<CMessage>);
 	ReturnType OnLogout(int nClientID, std::shared_ptr<CMessage>);
+	ReturnType OnGuestLogin(int nClientID, std::shared_ptr<CMessage>);
 
 	//账户管理
 public:
@@ -143,47 +144,11 @@ public:
 	ReturnType OnAccountUpdate(int nClientID, std::shared_ptr<CMessage>);
 	ReturnType OnAccountDelete(int nClientID, std::shared_ptr<CMessage>);
 
+	//脚本
 public:
-	void UpdatePlaying(int32_t nUid)
-	{
-		std::shared_ptr<CBaseUser> pUser = m_UserManager.GetUser(nUid);
-		if (!pUser)
-		{
-			CEasylog::GetInstance()->warn("can not find user:", nUid);
-			return;
-		}
-		pUser->UpdateStatus(UserStatus::USER_STATUS_PLAYING);
-	};
-	void UpdateExited(int32_t nUid)
-	{
-		std::shared_ptr<CBaseUser> pUser = m_UserManager.GetUser(nUid);
-		if (!pUser)
-		{
-			CEasylog::GetInstance()->warn("can not find user:", nUid);
-			return;
-		}
-		pUser->UpdateStatus(UserStatus::USER_STATUS_EXITED);
-	};
-	void UpdateUserInfo(int32_t nUid,std::string info)
-	{
-		std::shared_ptr<CBaseUser> pUser = m_UserManager.GetUser(nUid);
-		if (!pUser)
-		{
-			CEasylog::GetInstance()->warn("can not find user:", nUid);
-			return;
-		}
-		pUser->UpdateInfo(info);
-	};
-	void SendData(int32_t nUid, int32_t nCmd, std::string msg)
-	{
-		std::shared_ptr<CBaseUser> pUser = m_UserManager.GetUser(nUid);
-		if (!pUser)
-		{
-			CEasylog::GetInstance()->warn("can not find user:", nUid);
-			return;
-		}
-
-		pUser->Send(nCmd, msg);
-	};
+	void UpdatePlaying(int32_t nUid);
+	void UpdateExited(int32_t nUid);
+	void UpdateUserInfo(int32_t nUid, const std::map<std::string, CValueInfo>& info);
+	void SendData(int32_t nUid, int32_t nCmd, std::string msg);
 };
 #endif
