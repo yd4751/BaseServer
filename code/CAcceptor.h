@@ -22,7 +22,6 @@ public:
 public:
 	void Start(int32_t nPort)
 	{
-		m_testName = "Acceptor";
 		int32_t nListenSockid = CSocketInterface::GetInstance()->CreateListen("", nPort) ;
 		if (nListenSockid < 0)
 		{

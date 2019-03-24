@@ -180,5 +180,6 @@
   <ItemGroup>
     <None Include="Scripts\Game\main.lua" />
     <None Include="Scripts\Game\User\BaseUserManager.lua" />
+    <None Include="Scripts\ReloadModule.lua" />
   </ItemGroup>
 </Project>

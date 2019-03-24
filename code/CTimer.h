@@ -66,7 +66,6 @@ public:
 public:
 	void Start()
 	{
-		m_testName = "Timer";
 		CBaseWorker::Start();
 	}
 	void Stop()

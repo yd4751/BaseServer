@@ -114,7 +114,7 @@ void LoginRoom()
 }
 int main()
 {
-#if 1
+#if 0
 
 	while (true)
 	{
@@ -160,6 +160,11 @@ int main()
 
 	//int nid = NetCore::AddTimer(1000);
 	//nid = NetCore::AddTimer(5000);
+	NetCore::Config(0);
+	NetCore::Start();
+	NetCore::RegisterTimerHandler(OnTimeOut);
+	NetCore::AddTimer(1000);
+
 	while (true)
 	{
 		//std::this_thread::sleep_for(std::chrono::milliseconds(100));

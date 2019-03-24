@@ -3,7 +3,7 @@
 
 enum ClientMangerCmd
 {
-	MANAGER_INVALID=10000,
+	MANAGER_INVALID = 0,
 	CONNECT,
 	DISCONNECT,
 };

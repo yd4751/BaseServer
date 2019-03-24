@@ -18,14 +18,14 @@ namespace NetCore
 };
 
 #include "CBuffer.h"
-#include "ManagerCmdDefine.h"
-#include "ClientCmdDefine.h"
+#include "CommondDefine.h"
 #include "CMessageHandler.h"
 #include "message_define.h"
-#include "RedisDataDefine.h"
 #include "CTools.h"
 #include "CArray.h"
 #include "CEasyLog.h"
+#include "CNodeManager.h"
+#include "JsonParse.h"
 
 using std::cout;
 using std::endl;

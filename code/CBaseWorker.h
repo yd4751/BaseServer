@@ -19,8 +19,6 @@ class CBaseWorker
 	std::chrono::milliseconds	m_nextSleepTime;
 
 public:
-	//²âÊÔ
-	std::string m_testName;
 
 	CBaseWorker(bool bBlock = false)
 	{
@@ -30,7 +28,6 @@ public:
 	};
 	virtual ~CBaseWorker()
 	{
-		CEasylog::GetInstance()->info("Destruct ", m_testName, "  Status:", m_emStatus);
 		Stop();
 	};
 	bool IsRunning()
@@ -42,7 +39,7 @@ protected:
 	void DoWork()
 	{
 		m_emStatus = WORKER_STATUS_RUN;
-		CEasylog::GetInstance()->info("Run thread:",std::this_thread::get_id()," :", m_testName);
+		CEasylog::GetInstance()->info("Run thread:",std::this_thread::get_id());
 		while (true)
 		{
 			if (WORKER_STATUS_WAIT_EXIT == m_emStatus)
@@ -82,21 +79,16 @@ public:
 	}
 	void Stop()
 	{
-		CEasylog::GetInstance()->info("Stop ", m_testName, "  Status:", m_emStatus);
 		if (m_emStatus == WORKER_STATUS_RUN)
 		{
 			m_emStatus = WORKER_STATUS_WAIT_EXIT;
-			CEasylog::GetInstance()->info("Wait thread exit... id:",std::this_thread::get_id(),":", m_testName);
+			CEasylog::GetInstance()->info("Wait thread exit... id:",std::this_thread::get_id());
 			while (m_emStatus != WORKER_STATUS_EXITED)
 			{
 				//CEasylog::GetInstance()->info("Wait thread exit...");
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
-			CEasylog::GetInstance()->info("Wait thread exit success!",std::this_thread::get_id(), ":", m_testName);
-		}
-		else
-		{
-			CEasylog::GetInstance()->info("not running!", m_testName);
+			CEasylog::GetInstance()->info("Wait thread exit success!",std::this_thread::get_id());
 		}
 		
 	}

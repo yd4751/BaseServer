@@ -12,5 +12,8 @@ namespace Tools
 
 	std::string GetCurDate();
 	std::string GetCurDateTime();
+
+	std::string	GetCurPath();
+	std::string GetLocalIP();
 };
 #endif

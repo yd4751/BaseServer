@@ -21,7 +21,7 @@ int main()
 	NetCore::RegisterEvnetHandler(EventHandler);
 	NetCore::Start();
 
-	int nServerID = NetCore::Connect("192.168.1.50", 9999);
+	int nServerID = NetCore::Connect("192.168.0.144", 9999);
 	cout << "==" << nServerID << endl;
 
 	Json::Value val;

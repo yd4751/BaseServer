@@ -1,4 +1,4 @@
-#include "CTools.h"
+ï»¿#include "CTools.h"
 #include <stdint.h>
 #include <float.h>
 #include <time.h>
@@ -6,14 +6,20 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
-
+#include <cassert>
+#ifdef __WINDOWS__
+#include <winsock2.h>
+#pragma comment(lib,"ws2_32.lib")
+#elif __LINUX__
+#include <netdb.h>
+#endif
 namespace Tools
 {
-	//·Åµ½º¯ÊıÌåÖĞ£¬Èô³ÖĞøµ÷ÓÃµÃµ½µÄËæ»úÊıÊÇÏàÍ¬µÄ
+	//æ”¾åˆ°å‡½æ•°ä½“ä¸­ï¼Œè‹¥æŒç»­è°ƒç”¨å¾—åˆ°çš„éšæœºæ•°æ˜¯ç›¸åŒçš„
 	std::default_random_engine random(static_cast<uint32_t>(time(NULL)) );
 
 	template<>
-	int GetRandom(int nMin, int nMax)//È«±ÕºÏÇø¼ä
+	int GetRandom(int nMin, int nMax)//å…¨é—­åˆåŒºé—´
 	{
 		if (nMax <= nMin) return nMax;
 		//std::default_random_engine random(time(NULL));
@@ -21,9 +27,9 @@ namespace Tools
 		return dis(random);
 	};
 
-	//ÕâÀï×îºÃ²»ÒªÓÃÀ´¿ØÖÆ¸ÅÂÊ£¬ÕâÀïÉæ¼°µ½¾«¶ÈÎÊÌâ
+	//è¿™é‡Œæœ€å¥½ä¸è¦ç”¨æ¥æ§åˆ¶æ¦‚ç‡ï¼Œè¿™é‡Œæ¶‰åŠåˆ°ç²¾åº¦é—®é¢˜
 	template<>
-	double GetRandom(double nMin, double nMax)//È«±ÕºÏÇø¼ä
+	double GetRandom(double nMin, double nMax)//å…¨é—­åˆåŒºé—´
 	{
 		if (nMax <= nMin) return nMax;
 		//std::default_random_engine random(time(NULL));
@@ -59,5 +65,33 @@ namespace Tools
 		std::stringstream str;
 		str << std::put_time(std::localtime(&t), "%Y-%m-%d %X");
 		return str.str();
+	};
+
+	std::string	GetCurPath()
+	{
+		//å¾…å®ç°
+		//...
+		return "";
+	};
+	std::string GetLocalIP()
+	{
+		char hostname[256] = { 0 };
+		gethostname(hostname, sizeof(hostname));
+		struct hostent* hosts = gethostbyname(hostname);
+		if (hosts == nullptr)
+		{
+			assert(false);
+			return "";
+		}
+
+		int idx = 0;
+		while (hosts->h_addr_list[idx] != nullptr)
+		{
+			//hosts->h_name
+			return std::string(inet_ntoa(*(struct in_addr*)hosts->h_addr_list[idx]));
+		}
+
+		assert(false);
+		return "";
 	};
 };

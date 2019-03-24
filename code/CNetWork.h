@@ -110,7 +110,6 @@ public:
 
 	void Start(const CNetWorkConfig& config)
 	{
-		m_testName = "NetWork";
 		if (CBaseWorker::IsRunning())
 		{
 			CEasylog::GetInstance()->warn("NetWork is already running...");

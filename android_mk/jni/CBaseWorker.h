@@ -37,6 +37,7 @@ public:
 protected:
 	void DoWork()
 	{
+		m_emStatus = WORKER_STATUS_RUN;
 		CEasylog::GetInstance()->info("Run thread:",std::this_thread::get_id());
 		while (true)
 		{
@@ -69,7 +70,6 @@ public:
 		if (m_emStatus == WORKER_STATUS_EXITED)
 		{
 			std::thread work(std::bind(&CBaseWorker::DoWork,this));
-			m_emStatus = WORKER_STATUS_RUN;
 			if (m_bBlock)
 				work.join();
 			else
@@ -81,16 +81,13 @@ public:
 		if (m_emStatus == WORKER_STATUS_RUN)
 		{
 			m_emStatus = WORKER_STATUS_WAIT_EXIT;
+			CEasylog::GetInstance()->info("Wait thread exit... id:",std::this_thread::get_id());
 			while (m_emStatus != WORKER_STATUS_EXITED)
 			{
-				CEasylog::GetInstance()->info("Wait thread exit...");
-				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+				//CEasylog::GetInstance()->info("Wait thread exit...");
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
-			CEasylog::GetInstance()->info("Wait thread exit success!");
-		}
-		else
-		{
-			CEasylog::GetInstance()->info("not running!");
+			CEasylog::GetInstance()->info("Wait thread exit success!",std::this_thread::get_id());
 		}
 		
 	}

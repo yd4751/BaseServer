@@ -1,6 +1,9 @@
 #ifndef __H_JSON_PARSE_H__
 #define __H_JSON_PARSE_H__
-#include "global_include.h"
+#include <memory>
+#include <string>
+
+class CMessage;
 
 namespace ProtoParseJson
 {

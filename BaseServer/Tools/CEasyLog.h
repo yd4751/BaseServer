@@ -116,4 +116,9 @@ public:
 		log("[DEBUG]", rest...);
 	};
 };
+
+#define XDEBUG CEasylog::GetInstance()->debug
+#define XINFO CEasylog::GetInstance()->info
+#define XWARN CEasylog::GetInstance()->warn
+#define XERROR CEasylog::GetInstance()->error
 #endif

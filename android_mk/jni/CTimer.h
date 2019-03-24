@@ -60,7 +60,6 @@ public:
 	}
 	~CTimer()
 	{
-		m_Timers.Clear();
 		Stop();
 	}
 
@@ -71,6 +70,7 @@ public:
 	}
 	void Stop()
 	{
+		m_Timers.Clear();
 		CBaseWorker::Stop();
 	}
 	virtual bool Work()

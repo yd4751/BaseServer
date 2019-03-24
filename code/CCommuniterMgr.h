@@ -20,7 +20,6 @@ public:
 public:
 	void Start()
 	{
-		m_testName = "Mgr";
 		CBaseWorker::Start();
 	}
 	void Stop()

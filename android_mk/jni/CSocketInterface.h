@@ -18,7 +18,7 @@
 #include "CEasyLog.h"
 
 #define MAX_OPEN_FD 1024
-
+#define MAX_CONNECT_WAIT_TIME  5000
 class CSocketInterface:
 	public CSingleton<CSocketInterface>,
 	public CBaseSocket
@@ -158,7 +158,88 @@ public:
 #endif
 	};
 
+	bool WaitASyncConnectDone(int32_t fd,int32_t nMaxWaitTime)//ms
+	{
+#if defined(__WINDOWS__)
+		fd_set set;
+		FD_ZERO(&set);
+		FD_SET(fd, &set);  //相反的是FD_CLR(_sock_fd,&set)
 
+
+		time_t timeout = nMaxWaitTime;          //(超时时间设置为nMaxWaitTime毫秒)
+		struct timeval timeo;
+		timeo.tv_sec = timeout / 1000;
+		timeo.tv_usec = (timeout % 1000) * 1000;
+
+		int retval = select(fd + 1, NULL, &set, NULL, &timeo);           //事件监听
+		if (retval < 0)
+		{
+			//建立链接错误
+			return false;
+		}
+		else if (retval == 0) // 超时
+		{
+			//超时链接没有建立
+			return false;
+		}
+
+		//将检测到_socket_fd读事件或写时间，并不能说明connect成功
+		if (FD_ISSET(fd, &set))
+		{
+			int error = 0;
+			int len = sizeof(error);
+			if (getsockopt(fd, SOL_SOCKET, SO_ERROR, (char*)&error, &len) < 0)
+			{
+				return false;
+			}
+			if (error != 0) // 失败
+			{
+				return false;
+			}
+		}
+		return true;
+#elif defined(__LINUX__)
+		fd_set readfds;
+		fd_set writefds;
+		struct timeval timeout;
+
+		FD_ZERO(&readfds);
+		FD_SET(fd, &writefds);
+
+		timeout.tv_sec = time; //timeout is 10 minutes
+		timeout.tv_usec = 0;
+
+		ret = select(fd + 1, NULL, &writefds, NULL, &timeout);
+		if (ret <= 0)
+		{
+			//connection time out
+			return false;
+		}
+
+		if (!FD_ISSET(sockfd, &writefds))
+		{
+			//no events on sockfd found
+			return false;
+		}
+
+		int error = 0;
+		socklen_t length = sizeof(error);
+		if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &length) < 0)
+		{
+			//get socket option failed
+			return false;
+		}
+
+		if (error != 0)
+		{
+			//connection failed after select with the error;
+			return false;
+		}
+
+		//connection successful!
+		return true;
+#endif
+	}
 	virtual int32_t Connect(std::string ip, int32_t port)
 	{
 		int32_t sclient = -1;
@@ -168,15 +249,26 @@ public:
 		{ 		
 			return -1; 
 		}				
+		//
+		SetASync(sclient);
 		sockaddr_in serAddr;		
 		serAddr.sin_family = AF_INET;		
 		serAddr.sin_port = htons(port);
 		serAddr.sin_addr.S_un.S_addr = inet_addr(ip.c_str());
-		if (connect(sclient, (sockaddr *)&serAddr, sizeof(serAddr)) == SOCKET_ERROR) 
+		int ret = connect(sclient, (sockaddr *)&serAddr, sizeof(serAddr));
+		int tt = errno;
+		int ff = GetLastError();
+		if(ret == SOCKET_ERROR && GetLastError() != WSAEWOULDBLOCK)//EINPROGRESS标识正在处理
 		{  
 			//连接失败 				
 			closesocket(sclient);			
-			return 0;		
+			return -1;		
+		}
+		if (ret == SOCKET_ERROR && !WaitASyncConnectDone(sclient,MAX_CONNECT_WAIT_TIME))
+		{
+			//连接失败 				
+			closesocket(sclient);
+			return -1;
 		}
 #elif defined(__LINUX__)
 		struct sockaddr_in address;
@@ -190,9 +282,17 @@ public:
 		{
 			return -1;
 		}
+		//
+		SetASync(sclient);
 		int ret = connect(sclient, (struct sockaddr*)&address, sizeof(address));
-		if (ret != 0)
+		if (ret != 0 && errno != EINPROGRESS)
 		{
+			return -1;
+		}
+		if (ret != 0 && !WaitASyncConnectDone(sclient, MAX_CONNECT_WAIT_TIME))
+		{
+			//连接失败 				
+			closesocket(sclient);
 			return -1;
 		}
 		//
