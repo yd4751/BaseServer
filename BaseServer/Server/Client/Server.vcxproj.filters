@@ -69,11 +69,8 @@
     <ClCompile Include="..\Base\CServerBase.cpp">
       <Filter>公共文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Tools\CNodeManager.cpp">
+    <ClCompile Include="..\Base\CNodeServerMgr.cpp">
       <Filter>公共文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CServerList.cpp">
-      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\JsonPacket\JsonParseReply_CenterServer.cpp">
       <Filter>公共文件</Filter>
@@ -81,8 +78,8 @@
     <ClCompile Include="..\JsonPacket\JsonParseRequest_CenterServer.cpp">
       <Filter>公共文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\Base\CNodeServerMgr.cpp">
-      <Filter>公共文件</Filter>
+    <ClCompile Include="Proto.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\JsonPacket\JsonParseReply_CacheServer.cpp">
       <Filter>公共文件</Filter>
@@ -158,9 +155,6 @@
     <ClInclude Include="..\..\ProtocolParse\CProtocolParse.h">
       <Filter>公共文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ProtocolParse\JsonParse.h">
-      <Filter>公共文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\ProtocolParse\ProtoBufParse.h">
       <Filter>公共文件</Filter>
     </ClInclude>
@@ -178,15 +172,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Core\CNetCoreInterface.h">
       <Filter>公共文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ServerDefine.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Tools\CNodeManager.h">
-      <Filter>公共文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CServerList.h">
-      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\Base\CNodeServerMgr.h">
       <Filter>公共文件</Filter>

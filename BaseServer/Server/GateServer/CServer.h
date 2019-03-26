@@ -9,6 +9,8 @@ struct ServerInfo
 {
 	std::string ip;
 	uint32_t	port;
+	int32_t		cmdStart;
+	int32_t		cmdEnd;
 	ServerType type;
 
 	ServerInfo()
@@ -16,12 +18,16 @@ struct ServerInfo
 		ip = "";
 		port = 0;
 		type = ServerType::SERVER_INVALID;
+		cmdStart = 0;
+		cmdEnd = 0;
 	}
-	ServerInfo(ServerType type,std::string ip, uint32_t port)
+	ServerInfo(ServerType type,std::string ip, uint32_t port,int32_t cmdStart,int32_t cmdEnd)
 	{
 		this->ip = ip;
 		this->port = port;
 		this->type = type;
+		this->cmdStart = cmdStart;
+		this->cmdEnd = cmdEnd;
 	}
 };
 class CServer: public CServerBase, public CSingleton<CServer>
@@ -57,8 +63,9 @@ public:
 
 protected:
 	//获取目标服务器类型
+	ServerType GetServerType(int cmd);
 	ServerInfo GetTargetServerInfo(ServerType type);
-	ReturnType OnTransmitRequest(int fd,int nCmd, std::shared_ptr<CMessage>);
+	ReturnType OnTransmitMessage(int fd,int nCmd, std::shared_ptr<CMessage>);
 };
 
 #endif

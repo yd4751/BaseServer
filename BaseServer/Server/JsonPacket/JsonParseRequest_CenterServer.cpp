@@ -44,6 +44,8 @@ namespace ProtoParseJson
 		info.ip = value["ip"].asString();
 		info.port = value["port"].asInt();
 		info.type = value["type"].asInt();
+		info.cmdStart = value["cmdStart"].asInt();
+		info.cmdEnd = value["cmdEnd"].asInt();
 		return info;
 	};
 	template<>
@@ -53,6 +55,8 @@ namespace ProtoParseJson
 		value["ip"] = req.ip;
 		value["port"] = req.port;
 		value["type"] = req.type;
+		value["cmdStart"] = req.cmdStart;
+		value["cmdEnd"] = req.cmdEnd;
 
 		return value.toStyledString();
 	};

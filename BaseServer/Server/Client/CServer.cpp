@@ -1,4 +1,4 @@
-#include "CServer.h"
+﻿#include "CServer.h"
 
 
 CServer::CServer()
@@ -13,7 +13,7 @@ CServer::~CServer()
 }
 bool CServer::OnNetEventHandler(int nClientID, int nCmd, int nMsgLength, char* msgBuf, NetCore::ProtocolType type)
 {
-	XINFO(__FUNCTION__, "  ClientID:", nClientID, "  nCmd:", nCmd);
+	std::cout << __FUNCTION__ << "  ClientID:" << nClientID << "  nCmd:" << nCmd << std::endl;
 
 	std::shared_ptr<CMessage> pCurMessage = CServer::GetInstance()->m_curMessage;
 	pCurMessage->nCmd = nCmd;
@@ -38,29 +38,11 @@ ReturnType CServer::OnDisconnect(int, std::shared_ptr<CMessage>)
 {
 	return ReturnType();
 }
-ReturnType CServer::OnLogin(int fd, std::shared_ptr<CMessage> msg)
-{
-	Send(fd, NS_Login::Reply::CMD_LOGIN);
-	return ReturnType();
-}
-ReturnType CServer::OnGuestLogin(int fd, std::shared_ptr<CMessage> msg)
-{
-	//测试
-	NS_Login::ReplyUserLogin reply;
-	reply.id = Tools::GetRandom(100000, 999999);//随机6位数id
-	reply.money = Tools::GetRandom(100, 100000);//随机携带
-	reply.sex = Tools::GetRandom(0, 2);//随机性别 0-未填写 1-男 2-女
-	reply.nickName = "大帽子:" + std::to_string(reply.id);
-	reply.avatar = "www.google.com";
-
-	Send(fd,NS_Login::Reply::CMD_LOGIN,ProtoParseJson::MakePacket< NS_Login::ReplyUserLogin>(reply));
-	return ReturnType();
-}
 ;
 void CServer::Init()
 {
-	RegisterMessage(NS_Login::Request::CMD_LOGIN, std::bind(&CServer::OnLogin, this, std::placeholders::_1, std::placeholders::_2));
-	RegisterMessage(NS_Login::Request::CMD_GUEST_LOGIN, std::bind(&CServer::OnGuestLogin, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(NS_Gate::Reply::CMD_AUTH, std::bind(&CServer::OnAuthSucess, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(NS_Login::Reply::CMD_LOGIN, std::bind(&CServer::OnLoginSucess, this, std::placeholders::_1, std::placeholders::_2));
 }
 void CServer::Start()
 {
@@ -82,14 +64,9 @@ void CServer::Start()
 	NetCore::RegisterEvnetHandler(&CServer::OnNetEventHandler);
 	NetCore::Start();
 
-	//注册到中心服务器
-	if (!RegisterToServer(ServerType::SERVER_CENTER, m_config.registerIP, m_config.registerPort,
-		m_config.bindPort, NS_Center::Request::Register, (int)NS_Login::Request::CMD_NULL, (int)NS_Login::Request::CMD_MAX)
-		)
-	{
-		XWARN("Reigster server failed!");
-		assert(false);
-	}
+	//连接网关服务器
+	m_nodeServers.Add(ServerType::SERVER_GATE, "127.0.0.1", 5555);
+	SendAuth();
 
 	m_bRunning = true;
 }

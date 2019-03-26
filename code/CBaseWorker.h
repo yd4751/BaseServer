@@ -24,7 +24,7 @@ public:
 	{
 		m_emStatus = WORKER_STATUS_EXITED;
 		m_bBlock = bBlock;
-		m_nextSleepTime = std::chrono::milliseconds(10);
+		m_nextSleepTime = std::chrono::milliseconds(1);
 	};
 	virtual ~CBaseWorker()
 	{
@@ -86,7 +86,7 @@ public:
 			while (m_emStatus != WORKER_STATUS_EXITED)
 			{
 				//CEasylog::GetInstance()->info("Wait thread exit...");
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 			CEasylog::GetInstance()->info("Wait thread exit success!",std::this_thread::get_id());
 		}

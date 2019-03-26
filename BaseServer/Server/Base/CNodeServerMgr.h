@@ -22,6 +22,7 @@ public:
 	void Disconnect();
 	void Send(std::shared_ptr<CMessage>);
 	void Send(int cmd,std::string& data);
+	void Send(int cmd);
 
 };
 class CNodeServerMgr
@@ -31,11 +32,14 @@ public:
 	CNodeServerMgr();
 
 public:
+	bool Exists(ServerType type);
+	bool Exists(int fd);
 	void Add(ServerType type,std::string ip, uint32_t port);
 	void Disconnect(int fd);
 
 public:
 	void Send(ServerType type, std::shared_ptr<CMessage>);
 	void Send(ServerType type, int cmd, std::string data);
+	void Send(ServerType type, int cmd);
 };
 #endif

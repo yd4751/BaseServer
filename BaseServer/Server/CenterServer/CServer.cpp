@@ -1,4 +1,4 @@
-#include "CServer.h"
+ï»¿#include "CServer.h"
 
 
 CServer::CServer()
@@ -19,7 +19,7 @@ bool CServer::OnNetEventHandler(int nClientID, int nCmd, int nMsgLength, char* m
 	pCurMessage->nCmd = nCmd;
 	pCurMessage->nMsgLength = nMsgLength;
 	pCurMessage->nProtoType = type;
-	//³õÊ¼»¯Î²²¿
+	//åˆå§‹åŒ–å°¾éƒ¨
 	pCurMessage->GetDataBuf()[nMsgLength] = 0;
 	memcpy(pCurMessage->GetDataBuf(), msgBuf, nMsgLength * sizeof(char));
 
@@ -49,6 +49,8 @@ void CServer::SendList()
 		list.servers[list.servers.size()-1].ip = param.ip;
 		list.servers[list.servers.size() - 1].port = param.port;
 		list.servers[list.servers.size() - 1].type = (int)param.type;
+		list.servers[list.servers.size() - 1].cmdStart = param.cmdStart;
+		list.servers[list.servers.size() - 1].cmdEnd = param.cmdEnd;
 		return false;
 	});
 	m_serverList.GetMatch([this,&list](CServerInfo param) {
@@ -59,7 +61,7 @@ void CServer::SendList()
 }
 ReturnType CServer::OnRegister(int fd, std::shared_ptr<CMessage> msg)
 {
-	//Ğ­Òé½âÎö
+	//åè®®è§£æ
 	NS_Center::ReqRegister req = ProtoParseJson::Parse<NS_Center::ReqRegister>(msg);
 	
 	CServerInfo info;
@@ -67,6 +69,8 @@ ReturnType CServer::OnRegister(int fd, std::shared_ptr<CMessage> msg)
 	info.ip = req.ip;
 	info.port = req.port;
 	info.type = (ServerType)req.type;
+	info.cmdStart = req.cmdStart;
+	info.cmdEnd = req.cmdEnd;
 	m_serverList.Add(fd, info);
 	//reply
 	Send(fd, NS_Center::Reply::Register);
@@ -91,6 +95,8 @@ ReturnType CServer::OnGetOnlineList(int fd, std::shared_ptr<CMessage> msg)
 		list.servers[list.servers.size() - 1].ip = param.ip;
 		list.servers[list.servers.size() - 1].port = param.port;
 		list.servers[list.servers.size() - 1].type = (int)param.type;
+		list.servers[list.servers.size() - 1].cmdStart = param.cmdStart;
+		list.servers[list.servers.size() - 1].cmdEnd = param.cmdEnd;
 		return false;
 	});
 	Send(fd, NS_Center::Reply::OnlineList, ProtoParseJson::MakePacket<NS_Center::ReplyServerList>(list));
@@ -107,18 +113,18 @@ void CServer::Start()
 {
 	if (m_bRunning)  return;
 
-	//ÅäÖÃÎÄ¼ş
+	//é…ç½®æ–‡ä»¶
 	if (!m_config.Init())
 	{
 		std::cout << "init config fail!" << std::endl;
 		assert(false);
 		return;
 	}
-	//ÈÕÖ¾
+	//æ—¥å¿—
 	CEasylog::GetInstance()->Init("server.log", LOGLEVEL_DEBUG);
-	//ÏûÏ¢×¢²á
+	//æ¶ˆæ¯æ³¨å†Œ
 	Init();
-	//ÍøÂçÄ£¿é
+	//ç½‘ç»œæ¨¡å—
 	NetCore::Config(m_config.bindPort);
 	NetCore::RegisterEvnetHandler(&CServer::OnNetEventHandler);
 	NetCore::Start();

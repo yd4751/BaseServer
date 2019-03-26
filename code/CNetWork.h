@@ -5,6 +5,8 @@
 #include "CCommuniterGroups.h"
 #include "CMessage.h"
 #include "CTimer.h"
+#include <condition_variable>//条件变量
+#include "CDataCache.h"
 
 class CNetWorkConfig
 {
@@ -43,9 +45,12 @@ class CNetWork:
 	CNetWorkConfig												m_Config;
 
 	std::vector<int32_t>										m_listenSocks;	//select缓存
-	CNodeManager<int32_t, std::weak_ptr<CBaseConnection>>		m_events;
 
 	cbEventHandler												m_pNetEventHandler;
+
+public:
+	CDataCache<std::shared_ptr<CCommuniter>>					newConnections;	//新链接
+	CNodeManager<int32_t, std::weak_ptr<CBaseConnection>>		m_events;
 
 public:
 	CNetWork():CBaseWorker(false){};
@@ -155,16 +160,15 @@ public:
 	}
 	void OnNewConnection(int32_t id,std::shared_ptr<CMessage> msg)
 	{
-		//这个锁会造成死锁，OnConnectionEvent事件
-		//std::lock_guard<std::mutex>	gurd(m_netEventlock);
-
 		CEasylog::GetInstance()->debug(__FUNCTION__);
 		std::shared_ptr<CCommuniter> pNewCommuniter = std::make_shared<CCommuniter>();
 		pNewCommuniter->SetID(id);
 
-		AddConnection(pNewCommuniter);
+		//AddConnection(pNewCommuniter);
+		pNewCommuniter->RegisterHandler(std::bind(&CNetWork::OnConnectionEvent, this, std::placeholders::_1, std::placeholders::_2));
+		newConnections.Add(pNewCommuniter);
 		//
-		pNewCommuniter->OnConnected();
+		//pNewCommuniter->OnConnected();
 	}
 	void OnConnectionEvent(int32_t id, std::shared_ptr<CMessage> msg)
 	{
@@ -177,7 +181,6 @@ public:
 		}
 		if (m_pNetEventHandler)
 		{
-			CEasylog::GetInstance()->info("Do callback");
 			m_pNetEventHandler(id,msg->GetCommond(),msg->GetSize(),(char*)(msg->GetData().get()->Get()),msg->GetProtoType());
 		}
 		//连接关闭处理
@@ -190,7 +193,7 @@ public:
 public:
 	//
 	virtual bool Work()
-	{
+	{	
 		//get active ids
 		std::vector<int32_t>	activeids;
 
@@ -226,7 +229,6 @@ public:
 			}
 		}
 
-		//
 		//return activeids.empty() ? false : true;
 		return false;
 	}
@@ -240,7 +242,15 @@ public:
 		std::shared_ptr<CCommuniter> pNewCommuniter = std::make_shared<CCommuniter>();
 		if(pNewCommuniter->Connect(ip, port))
 		{
+#if 0
+			//这个接口在事件回调里面调用会造成死锁，CCommuniterMgr执行回调会lock，这里增加新链接会再次去lock，所以加一级缓存，回调处理完成后再处理
 			AddConnection(pNewCommuniter);
+#else
+			CEasylog::GetInstance()->warn("========add:", pNewCommuniter->GetID());
+			pNewCommuniter->m_bNotiyConnect = false;
+			pNewCommuniter->RegisterHandler(std::bind(&CNetWork::OnConnectionEvent, this, std::placeholders::_1, std::placeholders::_2));
+			newConnections.Add(pNewCommuniter);
+#endif
 			return pNewCommuniter->GetID();
 		}
 		
@@ -255,22 +265,50 @@ public:
 		if (!pWark.expired())
 		{
 			std::shared_ptr<CBaseConnection> pCur(pWark);
-			if (pCur) pCur->Disconnect();
+			if (pCur)
+			{
+				pCur->Disconnect();
+				return;
+			}
+
 		}
+
+		newConnections.Do([&id](std::shared_ptr<CCommuniter> param) {
+			if (param->GetID() == id)
+			{
+				param->Disconnect();
+				return true;
+			}
+			return false;
+		});
 	}
 	bool SendData(int32_t id, int nCmd, const char* pInput, int nInputLength, ProtocolType nProtoType)
 	{
 		if (!CBaseWorker::IsRunning()) return false;
 
 		auto it = m_events.Get(id);
-		if (it.expired())
-			return false;
-		std::shared_ptr<CBaseConnection> pCur(it);
-		if (pCur)
+		if (!it.expired())
 		{
-			pCur->SendData(nCmd, pInput, nInputLength, nProtoType);
-			return true;
+			std::shared_ptr<CBaseConnection> pCur(it);
+			if (pCur)
+			{
+				pCur->SendData(nCmd, pInput, nInputLength, nProtoType);
+				return true;
+			}
 		}
+		
+		bool bFind = false;
+		newConnections.Do([&id,&bFind, &nCmd, &pInput, &nInputLength, &nProtoType](std::shared_ptr<CCommuniter> param) {
+			if (param->GetID() == id)
+			{
+				param->SendData(nCmd, pInput, nInputLength, nProtoType);
+				bFind = true;
+				return true;
+			}
+			return false;
+		});
+
+		CEasylog::GetInstance()->warn("Send ======", bFind);
 		return false;
 	}
 

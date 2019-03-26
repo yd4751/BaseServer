@@ -29,6 +29,7 @@ public:
 		m_status = CONNECT_STATUS_WRITE;
 		m_id = -1;
 		m_curMessage = std::make_shared<CMessage>();
+		m_bNotiyConnect = true;
 	};
 	virtual ~CBaseConnection() 
 	{
@@ -67,6 +68,7 @@ public:
 
 	callBackMessage					m_handler;
 	std::shared_ptr<CMessage>		m_curMessage;
+	bool							m_bNotiyConnect;	//第一次连接通知
 
 	virtual uint32_t SendData(std::string data) { return 0; };
 	virtual uint32_t SendData(uint32_t nCmd, ProtocolType nProtoType, const std::string strInput) { return ErrorCode::ERROR_CODE_NULL; }

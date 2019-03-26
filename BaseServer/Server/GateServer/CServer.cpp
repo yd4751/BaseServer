@@ -1,4 +1,4 @@
-#include "CServer.h"
+ï»¿#include "CServer.h"
 #include "CConnection.h"
 #include "CTimerTask.h"
 
@@ -16,13 +16,13 @@ CServer::~CServer()
 }
 bool CServer::OnNetEventHandler(int nClientID, int nCmd, int nMsgLength, char* msgBuf, NetCore::ProtocolType type)
 {
-	std::cout << __FUNCTION__ << "  ClientID:" << nClientID << "  nCmd:" << nCmd << std::endl;
+	XINFO(__FUNCTION__ , "  ClientID:" , nClientID , "  nCmd:" , nCmd );
 
 	std::shared_ptr<CMessage> pCurMessage = CServer::GetInstance()->m_curMessage;
 	pCurMessage->nCmd = nCmd;
 	pCurMessage->nMsgLength = nMsgLength;
 	pCurMessage->nProtoType = type;
-	//³õÊ¼»¯Î²²¿
+	//åˆå§‹åŒ–å°¾éƒ¨
 	pCurMessage->GetDataBuf()[nMsgLength] = 0;
 	memcpy(pCurMessage->GetDataBuf(), msgBuf, nMsgLength * sizeof(char));
 
@@ -31,33 +31,62 @@ bool CServer::OnNetEventHandler(int nClientID, int nCmd, int nMsgLength, char* m
 		return true;
 	}
 
-	return CServer::GetInstance()->OnTransmitRequest(nClientID,nCmd,pCurMessage);
+	return CServer::GetInstance()->OnTransmitMessage(nClientID,nCmd,pCurMessage);
 }
-//ÏûÏ¢×ª·¢
-ReturnType CServer::OnTransmitRequest(int fd, int nCmd, std::shared_ptr<CMessage> msg)
+//æ¶ˆæ¯è½¬å‘
+ReturnType CServer::OnTransmitMessage(int fd, int nCmd, std::shared_ptr<CMessage> msg)
 {
-	//
-	if (!m_connects.Exist(fd))
+	//å¤„ç†è¯·æ±‚è¿˜æ˜¯å›å¤
+	if (m_connects.Exist(fd))
 	{
-		XINFO("connect is invalid!");
-		return ReturnType::Return_false;
-	}
-	//
-	auto pConn = m_connects.Get(fd);
-	if (!pConn->IsAuth())
-	{
-		XINFO("connect is need authorization!");
+		auto pConn = m_connects.Get(fd);
+		if (!pConn->IsAuth())
+		{
+			XINFO("connect is need authorization!");
+			return ReturnType::Return_true;
+		}
+		XDEBUG(__FUNCTION__,"Request ", fd);
+		//è‹¥èŠ‚ç‚¹ä¸å­˜åœ¨ï¼Œåˆ™æ–°å¢èŠ‚ç‚¹
+		if (!pConn->TransmitExist(fd))
+		{
+			ServerType type = GetServerType(nCmd);
+			if (type == ServerType::SERVER_INVALID)
+			{
+				XWARN("Can not find server node, cmd:",nCmd);
+				return ReturnType::Return_true;
+			}
+
+			ServerInfo server = GetTargetServerInfo(type);
+			pConn->TransmitAdd(type, server.ip, server.port);
+		}
+		
+		//è½¬å‘è¯·æ±‚
+		pConn->TransmitSend(msg);
 		return ReturnType::Return_true;
 	}
 
-	pConn->TransmitSend(msg);
+	XDEBUG(__FUNCTION__, "	Reply ", fd);
+	//è¿™æ ·éå†æ•ˆç‡æ¯”è¾ƒä½ï¼Œä»¥åçœ‹æœ‰æ²¡æœ‰ä»€ä¹ˆå¥½åŠæ³•
+	auto pConn = m_connects.GetMatch([&fd](std::shared_ptr<CConnection> param) {
+		return param->TransmitExist(fd);
+	});
+
+	if (pConn)
+	{
+		pConn->Send(msg);
+	}
+	else
+		XWARN("Can not handler cmd:", nCmd," from :",fd);
+	
 
 	return ReturnType::Return_true;
-};
+}
+;
 ReturnType CServer::OnConnect(int fd, std::shared_ptr<CMessage>)
 {
 	if (!m_connects.Exist(fd))
 	{
+		XDEBUG(__FUNCTION__,fd);
 		std::shared_ptr<CConnection> conn = std::make_shared<CConnection>(fd,m_config.nAuthTime);
 		m_connects.Add(fd, conn);
 	}
@@ -66,11 +95,14 @@ ReturnType CServer::OnConnect(int fd, std::shared_ptr<CMessage>)
 }
 ReturnType CServer::OnDisconnect(int fd, std::shared_ptr<CMessage> msg)
 {
-	if(m_connects.Exist(fd))
+	if (m_connects.Exist(fd))
+	{
+		XDEBUG(__FUNCTION__, fd);
 		m_connects.Remove(fd);
+	}
 	else
 	{
-		//×ª·¢½Úµã¶Ï¿ª
+		//è½¬å‘èŠ‚ç‚¹æ–­å¼€
 		m_connects.GetMatch([&fd](std::shared_ptr<CConnection> param) {
 			param->TransmitDisconnect(fd);
 			return false;
@@ -83,19 +115,8 @@ ReturnType CServer::OnConnectAuth(int fd, std::shared_ptr<CMessage> msg)
 	auto pConn = m_connects.Get(fd);
 	if (pConn)
 	{
-		if (!pConn->IsAuth())
-		{
-			//³õÊ¼»¯×ª·¢½Úµã
-			//µÇÂ¼½Úµã
-			ServerInfo login = GetTargetServerInfo(ServerType::SERVER_LOGIN);
-			if(login.type != ServerType::SERVER_INVALID)
-				pConn->TransmitAdd(ServerType::SERVER_LOGIN, login.ip, login.port);
-			//ÓÎÏ·½Úµã
-			ServerInfo game = GetTargetServerInfo(ServerType::SERVER_GAME);
-			if (game.type != ServerType::SERVER_INVALID)
-				pConn->TransmitAdd(ServerType::SERVER_GAME, game.ip, game.port);
-		}
 		pConn->Auth();
+		pConn->Send(NS_Gate::Reply::CMD_AUTH);
 	}
 	return ReturnType::Return_true;
 }
@@ -106,7 +127,7 @@ ReturnType CServer::OnServerList(int, std::shared_ptr<CMessage> msg)
 	for (auto it : list.servers)
 	{
 		ServerType type = ServerType(it.type);
-		m_serverList[type].emplace_back(type,it.ip,it.port);
+		m_serverList[type].emplace_back(type,it.ip,it.port,it.cmdStart,it.cmdEnd);
 	}
 	return ReturnType::Return_true;
 }
@@ -121,13 +142,22 @@ bool CServer::OnAuthTimeOut()
 	}
 	return false;
 };
+ServerType CServer::GetServerType(int cmd)
+{
+	for (auto& it : m_serverList)
+	{
+		if (it.second.begin()->cmdStart < cmd && cmd < it.second.begin()->cmdEnd)
+			return it.first;
+	}
+	return ServerType::SERVER_INVALID;
+}
 ServerInfo CServer::GetTargetServerInfo(ServerType type)
 {
-	//»ñÈ¡×îÓÅ½Úµã
+	//è·å–æœ€ä¼˜èŠ‚ç‚¹
 	auto it = m_serverList.find(type);
 	if (it != m_serverList.end())
 	{
-		//(ÔİÊ±È¡µÚÒ»¸ö)
+		//(æš‚æ—¶å–ç¬¬ä¸€ä¸ª)
 		return it->second[0];
 	}
 	return ServerInfo();
@@ -143,24 +173,26 @@ void CServer::Start()
 {
 	if (m_bRunning)  return;
 
-	//ÅäÖÃÎÄ¼ş
+	//é…ç½®æ–‡ä»¶
 	if (!m_config.Init())
 	{
 		std::cout << "init config fail!" << std::endl;
 		assert(false);
 		return;
 	}
-	//ÈÕÖ¾
+	//æ—¥å¿—
 	CEasylog::GetInstance()->Init("server.log", LOGLEVEL_DEBUG);
-	//ÏûÏ¢×¢²á
+	//æ¶ˆæ¯æ³¨å†Œ
 	Init();
-	//ÍøÂçÄ£¿é
+	//ç½‘ç»œæ¨¡å—
 	NetCore::Config(m_config.bindPort);
 	NetCore::RegisterEvnetHandler(&CServer::OnNetEventHandler);
 	NetCore::Start();
 
-	//×¢²áµ½ÖĞĞÄ·şÎñÆ÷
-	if (!RegisterToServer(ServerType::SERVER_CENTER,m_config.registerIP, m_config.registerPort, m_config.bindPort, NS_Center::Request::Register))
+	//æ³¨å†Œåˆ°ä¸­å¿ƒæœåŠ¡å™¨
+	if (!RegisterToServer(ServerType::SERVER_CENTER,m_config.registerIP, m_config.registerPort, 
+		m_config.bindPort, NS_Center::Request::Register,(int)NS_Gate::Request::CMD_NULL, (int)NS_Gate::Request::CMD_MAX)
+		)
 	{
 		XWARN("Reigster server failed!");
 		assert(false);

@@ -8,7 +8,7 @@ namespace NS_Game	//400000
 		enum commond
 		{
 			CMD_NULL = 400000,
-			CMD_MAX,
+			CMD_MAX = 450000,
 		};
 	};
 	namespace Reply//450000
@@ -16,7 +16,7 @@ namespace NS_Game	//400000
 		enum commond
 		{
 			CMD_NULL = 450000,
-			CMD_MAX,
+			CMD_MAX = 500000,
 		};
 	};
 };

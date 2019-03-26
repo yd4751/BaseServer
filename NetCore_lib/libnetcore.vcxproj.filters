@@ -81,6 +81,9 @@
     <ClInclude Include="..\code\NetWorkSerilize.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\code\CDataCache.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -144,6 +147,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\code\NetWorkSerilize.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\CDataCache.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -118,6 +118,12 @@ public:
 		std::lock_guard<std::mutex> gurd(m_lock);
 		return m_nodes.size();
 	}
+	int32_t LeftSize()
+	{
+		//负数表示无穷大
+		std::lock_guard<std::mutex> gurd(m_lock);
+		return m_nMaxNodeSize - m_nodes.size();
+	}
 };
 
 #endif

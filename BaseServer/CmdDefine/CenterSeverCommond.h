@@ -11,7 +11,7 @@ namespace NS_Center	//200000
 			Register,
 			Update,
 			OnlineList,
-			CMD_MAX,
+			CMD_MAX = 250000,
 		};
 	};
 	namespace Reply//250000
@@ -22,7 +22,7 @@ namespace NS_Center	//200000
 			Register,
 			Update,
 			OnlineList,
-			CMD_MAX,
+			CMD_MAX = 300000,
 		};
 	};
 
@@ -32,6 +32,8 @@ namespace NS_Center	//200000
 		std::string ip = "";
 		int	port = 0;
 		int type = 0;
+		int cmdStart = 0;
+		int cmdEnd = 0;
 	};
 	//
 	struct ReplyRegister
@@ -44,6 +46,8 @@ namespace NS_Center	//200000
 		std::string ip = "";
 		int	port = 0;
 		int type = 0;
+		int cmdStart = 0;
+		int cmdEnd = 0;
 	};
 	struct ReqServerList
 	{

@@ -58,6 +58,14 @@ void CConnection::TransmitDisconnect(int fd)
 {
 	m_transmitNodes.Disconnect(fd);
 };
+void CConnection::Send(std::shared_ptr<CMessage> msg)
+{
+	NetCore::SendData(m_id, msg->nCmd, msg->GetDataBuf(), msg->nMsgLength, msg->nProtoType);
+}
+void CConnection::Send(int cmd)
+{
+	NetCore::SendData(m_id, cmd, nullptr, 0, NetCore::ProtocolType::PROTO_TYPE_JSON);
+}
 ServerType CConnection::GetTranmitType(int nCmd)
 {
 	//NS_Login
@@ -74,7 +82,16 @@ ServerType CConnection::GetTranmitType(int nCmd)
 		return ServerType::SERVER_CACHE;
 
 	return ServerType::SERVER_INVALID;
-};
+}
+bool CConnection::TransmitExist(ServerType type)
+{
+	return m_transmitNodes.Exists(type);
+}
+bool CConnection::TransmitExist(int fd)
+{
+	return m_transmitNodes.Exists(fd);
+}
+;
 void CConnection::TransmitSend(std::shared_ptr<CMessage> msg)
 {
 	m_transmitNodes.Send(GetTranmitType(msg->nCmd), msg);

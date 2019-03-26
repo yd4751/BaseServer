@@ -9,7 +9,7 @@ namespace NS_Gate	//100000
 		{
 			CMD_NULL = 100000,
 			CMD_AUTH,
-			CMD_MAX,
+			CMD_MAX = 150000,
 		};
 	};
 	namespace Reply//150000
@@ -18,8 +18,17 @@ namespace NS_Gate	//100000
 		{
 			CMD_NULL = 150000,
 			CMD_AUTH,
-			CMD_MAX,
+			CMD_MAX = 200000,
 		};
+	};
+
+	struct ReqAuth
+	{
+
+	};
+	struct ReplyAuth
+	{
+
 	};
 };
 

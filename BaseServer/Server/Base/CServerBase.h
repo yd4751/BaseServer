@@ -28,7 +28,7 @@ public:
 	virtual void Send(int fd,int cmd, Json::Value& packet);
 	virtual void Send(int fd, int cmd, std::string str);
 	virtual void Send(int fd, int cmd);
-	virtual bool RegisterToServer(ServerType type,const std::string& ip, uint32_t port,uint32_t bindPort,int cmd);
+	virtual bool RegisterToServer(ServerType type,const std::string& ip, uint32_t port,uint32_t bindPort,int cmd, int cmdStart, int cmdEnd);
 	
 };
 #endif

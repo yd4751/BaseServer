@@ -53,7 +53,13 @@ public:
 	ConnectStatus GetStatus() { return m_status; }
 
 public:
+	void Send(std::shared_ptr<CMessage> msg);
+	void Send(int cmd);
+
+public:
 	ServerType GetTranmitType(int nCmd);
+	bool TransmitExist(ServerType type);
+	bool TransmitExist(int fd);
 	void TransmitAdd(ServerType type,std::string ip, int32_t port);
 	void TransmitDisconnect(int fd);
 	void TransmitSend(std::shared_ptr<CMessage> msg);

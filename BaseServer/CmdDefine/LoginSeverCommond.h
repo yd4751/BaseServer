@@ -7,7 +7,9 @@ namespace NS_Login	//300000
 		enum commond
 		{
 			CMD_NULL = 300000,
-			CMD_MAX,
+			CMD_LOGIN,
+			CMD_GUEST_LOGIN,
+			CMD_MAX = 350000,
 		};
 	};
 	namespace Reply//350000
@@ -15,8 +17,22 @@ namespace NS_Login	//300000
 		enum commond
 		{
 			CMD_NULL = 350000,
-			CMD_MAX,
+			CMD_LOGIN,
+			CMD_MAX = 400000,
 		};
+	};
+
+	struct ReqGuestLogin
+	{
+
+	};
+	struct ReplyUserLogin
+	{
+		int32_t		id;			//用户id
+		int32_t		sex;		//性别
+		int32_t		money;		//携带
+		std::string nickName;	//昵称
+		std::string avatar;		//头像地址
 	};
 };
 

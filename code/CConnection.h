@@ -99,7 +99,6 @@ public:
 			int32_t nCurReadLen = CSocketInterface::GetInstance()->Read(GetID(), m_Recv.GetBuf(), m_Recv.GetMaxSize());
 			if (nCurReadLen < 0)
 			{
-				//CEasylog::GetInstance()->error("error in read!", nCurReadLen);
 				return false;
 			}
 			else if (nCurReadLen == 0)
@@ -111,7 +110,7 @@ public:
 			else
 			{
 				m_BufRead.Write(m_Recv.GetBuf(), nCurReadLen);
-				//可能有多个消息，这里需要循环处理
+				//可能有多个消息，这里需要循环处理,每次只处理一个，避免上层死锁
 				while (true)
 				{
 					if (!m_PacketParse.Parse(m_BufRead, m_curMessage))

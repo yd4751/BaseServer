@@ -8,7 +8,7 @@ namespace NS_Cache	//500000
 		enum commond
 		{
 			CMD_NULL = 500000,
-			CMD_MAX,
+			CMD_MAX = 550000,
 		};
 	};
 	namespace Reply//550000
@@ -16,7 +16,7 @@ namespace NS_Cache	//500000
 		enum commond
 		{
 			CMD_NULL = 550000,
-			CMD_MAX,
+			CMD_MAX = 600000,
 		};
 	};
 };

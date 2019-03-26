@@ -59,6 +59,8 @@ namespace ProtoParseJson
 			info.servers[info.servers.size() - 1].ip = value["servers"][i]["ip"].asString();
 			info.servers[info.servers.size() - 1].port = value["servers"][i]["port"].asInt();
 			info.servers[info.servers.size() - 1].type = value["servers"][i]["type"].asInt();
+			info.servers[info.servers.size() - 1].cmdStart = value["servers"][i]["cmdStart"].asInt();
+			info.servers[info.servers.size() - 1].cmdEnd = value["servers"][i]["cmdEnd"].asInt();
 		}
 		return info;
 	};
@@ -72,6 +74,8 @@ namespace ProtoParseJson
 			info["ip"] = it.ip;
 			info["port"] = it.port;
 			info["type"] = it.type;
+			info["cmdStart"] = it.cmdStart;
+			info["cmdEnd"] = it.cmdEnd;
 			value["servers"].append(info);
 		}
 		return value.toStyledString();

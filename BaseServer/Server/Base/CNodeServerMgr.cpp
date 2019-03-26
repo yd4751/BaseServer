@@ -59,8 +59,31 @@ void CNodeServer::Send(int cmd, std::string & data)
 	NetCore::SendData(m_fd, cmd, data.c_str(), data.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
 }
 
+void CNodeServer::Send(int cmd)
+{
+	Reconnect();
+
+	NetCore::SendData(m_fd, cmd, nullptr, 0, NetCore::ProtocolType::PROTO_TYPE_JSON);
+}
+
 CNodeServerMgr::CNodeServerMgr()
 {
+}
+
+bool CNodeServerMgr::Exists(ServerType type)
+{
+	auto pConn = m_servers.GetMatch([&type](std::shared_ptr<CNodeServer> param) {
+		return param->type == type ? true : false;
+	});
+	return pConn == nullptr ? false : true;
+}
+
+bool CNodeServerMgr::Exists(int fd)
+{
+	auto pConn = m_servers.GetMatch([&fd](std::shared_ptr<CNodeServer> param) {
+		return param->GetID() == fd ? true : false;
+	});
+	return pConn == nullptr ? false : true;
 }
 
 void CNodeServerMgr::Add(ServerType type, std::string ip, uint32_t port)
@@ -104,6 +127,17 @@ void CNodeServerMgr::Send(ServerType type,int cmd, std::string data)
 	if (pConn)
 	{
 		pConn->Send(cmd, data);
+	}
+	else
+		XWARN("Can not find type server,cmd:", cmd);
+}
+
+void CNodeServerMgr::Send(ServerType type, int cmd)
+{
+	auto pConn = m_servers.Get(type);
+	if (pConn)
+	{
+		pConn->Send(cmd);
 	}
 	else
 		XWARN("Can not find type server,cmd:", cmd);

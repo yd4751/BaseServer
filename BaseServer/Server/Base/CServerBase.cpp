@@ -8,6 +8,7 @@ CServerBase::CServerBase()
 	RegisterMessage(NetCore::CONNECT, std::bind(&CServerBase::OnConnect, this, std::placeholders::_1, std::placeholders::_2));
 	RegisterMessage(NetCore::DISCONNECT, std::bind(&CServerBase::OnDisconnect, this, std::placeholders::_1, std::placeholders::_2));
 }
+
 void CServerBase::Send(int fd,int cmd, Json::Value & packet)
 {
 	std::string str = packet.toStyledString();
@@ -21,7 +22,7 @@ void CServerBase::Send(int fd, int cmd)
 {
 	NetCore::SendData(fd, cmd, nullptr, 0, NetCore::ProtocolType::PROTO_TYPE_JSON);
 }
-bool CServerBase::RegisterToServer(ServerType type, const std::string& ip, uint32_t port, uint32_t bindPort, int cmd)
+bool CServerBase::RegisterToServer(ServerType type, const std::string& ip, uint32_t port, uint32_t bindPort, int cmd,int cmdStart,int cmdEnd)
 {
 	m_nodeServers.Add(type, ip, port);
 
@@ -29,6 +30,8 @@ bool CServerBase::RegisterToServer(ServerType type, const std::string& ip, uint3
 	req.type = (int)m_type;
 	req.ip = Tools::GetLocalIP();
 	req.port = bindPort;
+	req.cmdStart = cmdStart;
+	req.cmdEnd = cmdEnd;
 
 	m_nodeServers.Send(type, cmd,ProtoParseJson::MakePacket<NS_Center::ReqRegister>(req));
 	return true;

@@ -1,4 +1,4 @@
-#include "CServer.h"
+ï»¿#include "CServer.h"
 
 
 CServer::CServer()
@@ -19,7 +19,7 @@ bool CServer::OnNetEventHandler(int nClientID, int nCmd, int nMsgLength, char* m
 	pCurMessage->nCmd = nCmd;
 	pCurMessage->nMsgLength = nMsgLength;
 	pCurMessage->nProtoType = type;
-	//³õÊ¼»¯Î²²¿
+	//åˆå§‹åŒ–å°¾éƒ¨
 	pCurMessage->GetDataBuf()[nMsgLength] = 0;
 	memcpy(pCurMessage->GetDataBuf(), msgBuf, nMsgLength * sizeof(char));
 
@@ -46,24 +46,26 @@ void CServer::Start()
 {
 	if (m_bRunning)  return;
 
-	//ÅäÖÃÎÄ¼ş
+	//é…ç½®æ–‡ä»¶
 	if (!m_config.Init())
 	{
 		std::cout << "init config fail!" << std::endl;
 		assert(false);
 		return;
 	}
-	//ÈÕÖ¾
+	//æ—¥å¿—
 	CEasylog::GetInstance()->Init("server.log", LOGLEVEL_DEBUG);
-	//ÏûÏ¢×¢²á
+	//æ¶ˆæ¯æ³¨å†Œ
 	Init();
-	//ÍøÂçÄ£¿é
+	//ç½‘ç»œæ¨¡å—
 	NetCore::Config(m_config.bindPort);
 	NetCore::RegisterEvnetHandler(&CServer::OnNetEventHandler);
 	NetCore::Start();
 
-	//×¢²áµ½ÖĞĞÄ·şÎñÆ÷
-	if (!RegisterToServer(ServerType::SERVER_CENTER, m_config.registerIP, m_config.registerPort, m_config.bindPort, NS_Center::Request::Register))
+	//æ³¨å†Œåˆ°ä¸­å¿ƒæœåŠ¡å™¨
+	if (!RegisterToServer(ServerType::SERVER_CENTER, m_config.registerIP, m_config.registerPort,
+		m_config.bindPort, NS_Center::Request::Register, (int)NS_Game::Request::CMD_NULL, (int)NS_Game::Request::CMD_MAX)
+		)
 	{
 		XWARN("Reigster server failed!");
 		assert(false);

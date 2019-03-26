@@ -26,8 +26,14 @@ public:
 
 public:
 	//RegisterMessage
-	ReturnType OnLogin(int, std::shared_ptr<CMessage>);
-	ReturnType OnGuestLogin(int, std::shared_ptr<CMessage>);
+	ReturnType OnAuthSucess(int, std::shared_ptr<CMessage>);
+	ReturnType OnLoginSucess(int, std::shared_ptr<CMessage>);
+	ReturnType OnGuestLoginSucess(int, std::shared_ptr<CMessage>);
+
+public:
+	void SendAuth();
+	void SendLogin();
+	void SendGuestLogin();
 };
 
 #endif

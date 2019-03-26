@@ -83,7 +83,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_WIN32_WINDOWS;__WINDOWS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(RootDir)lib\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(RootDir)bin\</AdditionalLibraryDirectories>
       <AdditionalDependencies>libnetcore_x86_debug.lib;libmysql_x86.lib;lua53_x86.lib;json_x86_debug.lib;libprotobuf_x86_debug.lib;hiredis_x86_debug.lib;Win32_Interop_x86_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -140,8 +140,18 @@
     <ClCompile Include="..\..\Tools\CTools.cpp" />
     <ClCompile Include="..\Base\CNodeServerMgr.cpp" />
     <ClCompile Include="..\Base\CServerBase.cpp" />
+    <ClCompile Include="..\JsonPacket\JsonParseReply_CacheServer.cpp" />
     <ClCompile Include="..\JsonPacket\JsonParseReply_CenterServer.cpp" />
+    <ClCompile Include="..\JsonPacket\JsonParseReply_DBServer.cpp" />
+    <ClCompile Include="..\JsonPacket\JsonParseReply_GameServer.cpp" />
+    <ClCompile Include="..\JsonPacket\JsonParseReply_GateServer.cpp" />
+    <ClCompile Include="..\JsonPacket\JsonParseReply_LoginServer.cpp" />
+    <ClCompile Include="..\JsonPacket\JsonParseRequest_CacheServer.cpp" />
     <ClCompile Include="..\JsonPacket\JsonParseRequest_CenterServer.cpp" />
+    <ClCompile Include="..\JsonPacket\JsonParseRequest_DBServer.cpp" />
+    <ClCompile Include="..\JsonPacket\JsonParseRequest_GameServer.cpp" />
+    <ClCompile Include="..\JsonPacket\JsonParseRequest_GateServer.cpp" />
+    <ClCompile Include="..\JsonPacket\JsonParseRequest_LoginServer.cpp" />
     <ClCompile Include="CConfig.cpp" />
     <ClCompile Include="CServer.cpp" />
     <ClCompile Include="CServerList.cpp" />
