@@ -182,7 +182,17 @@
     <ClInclude Include="CConfig.h" />
     <ClInclude Include="CServer.h" />
     <ClInclude Include="CServerList.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="ServerDefine.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="center.ico" />
+    <Image Include="center.png" />
+    <Image Include="icon1.ico" />
+    <Image Include="icon2.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

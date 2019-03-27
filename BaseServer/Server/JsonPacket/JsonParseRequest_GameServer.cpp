@@ -1,7 +1,7 @@
 #include "JsonParse.h"
 #include "global_include.h"
 using namespace MessageDefine;
-using namespace NS_Center;
+using namespace NS_Game;
 
 namespace ProtoParseJson
 {
@@ -27,5 +27,25 @@ namespace ProtoParseJson
 	}
 	*/
 
-
+	template <>
+	ReqLogin Parse(std::shared_ptr<CMessage> msg)
+	{
+		Json::Reader reader;
+		Json::Value value;
+		if (!reader.parse(msg->GetDataBuf(), (msg->GetDataBuf() + msg->nMsgLength), value))
+		{
+			CEasylog::GetInstance()->error(__FILE__, __LINE__, __FUNCTION__);
+			return ReqLogin();
+		}
+		ReqLogin req;
+		req.id = value["id"].asInt();
+		return req;
+	};
+	template <>
+	std::string MakePacket(ReqLogin msg)
+	{
+		Json::Value value;
+		value["id"] = msg.id;
+		return value.toStyledString();
+	}
 }

@@ -116,7 +116,7 @@ ReturnType CServer::OnConnectAuth(int fd, std::shared_ptr<CMessage> msg)
 	if (pConn)
 	{
 		pConn->Auth();
-		pConn->Send(NS_Gate::Reply::CMD_AUTH);
+		pConn->Send(NS_Gate::Reply::Auth);
 	}
 	return ReturnType::Return_true;
 }
@@ -165,7 +165,7 @@ ServerInfo CServer::GetTargetServerInfo(ServerType type)
 ;
 void CServer::Init()
 {
-	RegisterMessage(NS_Gate::Request::CMD_AUTH,std::bind(&CServer::OnConnectAuth,this,std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(NS_Gate::Request::Auth,std::bind(&CServer::OnConnectAuth,this,std::placeholders::_1, std::placeholders::_2));
 	RegisterMessage(NS_Center::Reply::Register, std::bind(&CServer::OnRegisterSuccess, this, std::placeholders::_1, std::placeholders::_2));
 	RegisterMessage(NS_Center::Reply::OnlineList, std::bind(&CServer::OnServerList, this, std::placeholders::_1, std::placeholders::_2));
 }

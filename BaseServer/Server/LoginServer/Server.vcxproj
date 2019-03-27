@@ -79,7 +79,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(RootDir)Server\Base;$(RootDir)CmdDefine;$(RootDir)Core;$(RootDir)include;$(RootDir)Protocol;$(RootDir)Protocol\Protobuf;$(RootDir)ProtocolParse;$(RootDir)Rpc;$(RootDir)Server;$(RootDir)Tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(RootDir)Server\Base;$(RootDir)CmdDefine;$(RootDir)Core;$(RootDir)include;$(RootDir)Server\CacheData;$(RootDir)Protocol;$(RootDir)Protocol\Protobuf;$(RootDir)ProtocolParse;$(RootDir)Rpc;$(RootDir)Server;$(RootDir)Tools</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_WIN32_WINDOWS;__WINDOWS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -153,7 +153,10 @@
     <ClCompile Include="..\JsonPacket\JsonParseRequest_LoginServer.cpp" />
     <ClCompile Include="CConfig.cpp" />
     <ClCompile Include="CServer.cpp" />
+    <ClCompile Include="CUser.cpp" />
+    <ClCompile Include="DBOperate.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="RedisOperate.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\CmdDefine\CommondDefine.h" />
@@ -175,8 +178,17 @@
     <ClInclude Include="..\Base\CConfigBase.h" />
     <ClInclude Include="..\Base\CNodeServerMgr.h" />
     <ClInclude Include="..\Base\CServerBase.h" />
+    <ClInclude Include="..\CacheData\CacheDataDefine.h" />
     <ClInclude Include="CConfig.h" />
     <ClInclude Include="CServer.h" />
+    <ClInclude Include="CUser.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Server.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="login.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

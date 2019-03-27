@@ -5,7 +5,7 @@
 CConfig::CConfig()
 {
 	//≤‚ ‘
-	bindPort = 6666;
+	bindPort = 8800;
 	registerIP = "";
 	registerPort = 0;
 }

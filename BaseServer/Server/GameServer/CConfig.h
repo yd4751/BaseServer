@@ -5,6 +5,9 @@
 class CConfig:public CConfigBase
 {
 public:
+	ServerConfig	cacheServer;
+
+public:
 	CConfig();
 	virtual ~CConfig();
 public:

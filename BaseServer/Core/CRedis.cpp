@@ -116,6 +116,11 @@ void CRedis::FormatInputString(const int value)
 	m_strFormatCmd << value <<" ";
 };
 template<>
+void CRedis::FormatInputString(const unsigned int value)
+{
+	m_strFormatCmd << value << " ";
+};
+template<>
 void CRedis::FormatInputString(const int64_t value)
 {
 	m_strFormatCmd << value << " ";
@@ -306,6 +311,11 @@ bool CRedis::Del(const std::string key)
 //hash table
 template<>
 bool CRedis::HSet(const std::string table, const std::string key, const int value)
+{
+	return ExecCommon(REDIS_HASH_SET, table, key, value);
+};
+template<>
+bool CRedis::HSet(const std::string table, const std::string key, const unsigned int value)
 {
 	return ExecCommon(REDIS_HASH_SET, table, key, value);
 };

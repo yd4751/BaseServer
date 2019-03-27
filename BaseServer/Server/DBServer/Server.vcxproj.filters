@@ -1,0 +1,190 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="公共文件">
+      <UniqueIdentifier>{8e479915-9aff-4671-9c89-07fc23915aa9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CServer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CConfig.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\CArray.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\CBuffer.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\CMessageHandler.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\CRedis.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\CSQLInterface.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\CTimerTask.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\NetWorkSerilize.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ProtocolParse\CProtocolParse.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ProtocolParse\ProtoBufParse.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Rpc\CRpc.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tools\CEasyLog.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tools\CSingleton.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tools\CTools.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Base\CServerBase.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Base\CNodeServerMgr.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\JsonPacket\JsonParseReply_CenterServer.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\JsonPacket\JsonParseRequest_CenterServer.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\JsonPacket\JsonParseReply_CacheServer.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\JsonPacket\JsonParseReply_DBServer.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\JsonPacket\JsonParseReply_GameServer.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\JsonPacket\JsonParseReply_GateServer.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\JsonPacket\JsonParseReply_LoginServer.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\JsonPacket\JsonParseRequest_CacheServer.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\JsonPacket\JsonParseRequest_DBServer.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\JsonPacket\JsonParseRequest_GameServer.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\JsonPacket\JsonParseRequest_GateServer.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\JsonPacket\JsonParseRequest_LoginServer.cpp">
+      <Filter>公共文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CServer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CConfig.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Base\CConfigBase.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Base\CServerBase.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CmdDefine\CommondDefine.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\CArray.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\CBuffer.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\CMessageHandler.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\CRedis.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\CSQLInterface.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\CTimerTask.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\global_include.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\NetWorkSerilize.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ProtocolParse\CProtocolParse.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ProtocolParse\ProtoBufParse.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Rpc\CRpc.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Tools\CEasyLog.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Tools\CSingleton.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Tools\CTools.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\CNetCoreInterface.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Base\CNodeServerMgr.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Server.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="db.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

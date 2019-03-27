@@ -1,5 +1,5 @@
 ﻿#include "CServer.h"
-
+#include "CScriptInterface.h"
 
 CServer::CServer()
 {
@@ -28,6 +28,11 @@ bool CServer::OnNetEventHandler(int nClientID, int nCmd, int nMsgLength, char* m
 		return true;
 	}
 
+	auto pUser = CServer::GetInstance()->GetUserByConnectID(nClientID);
+	if (pUser)
+	{
+		return CScriptInterface::Dispatch(pUser->id, nCmd, pCurMessage->GetDataBuf());
+	}
 	return false;
 }
 ReturnType CServer::OnConnect(int, std::shared_ptr<CMessage>)
@@ -38,9 +43,34 @@ ReturnType CServer::OnDisconnect(int, std::shared_ptr<CMessage>)
 {
 	return ReturnType();
 }
+ReturnType CServer::OnLogin(int fd, std::shared_ptr<CMessage> msg)
+{
+	NS_Game::ReqLogin req = ProtoParseJson::Parse<NS_Game::ReqLogin>(msg);
+
+	std::shared_ptr<CUser> pUser = std::make_shared<CUser>();
+	pUser->id = req.id;
+
+	if (!RDLogin(pUser))
+	{
+		XINFO(__FUNCTION__,"fail!");
+		return ReturnType::Return_true;
+	}
+	pUser->fd = fd;
+	m_users.Add(pUser->id,pUser);
+
+	NS_Game::ReplyLogin reply;
+	reply.id = pUser->id;
+	reply.sex = pUser->sex;
+	reply.money = pUser->money;
+	reply.nickName = pUser->nickName;
+	reply.avatar = pUser->avatar;
+	Send(fd, NS_Game::Reply::Login, ProtoParseJson::MakePacket<NS_Game::ReplyLogin>(reply));
+	return ReturnType::Return_true;
+}
 ;
 void CServer::Init()
 {
+	RegisterMessage(NS_Game::Request::Login, std::bind(&CServer::OnLogin, this, std::placeholders::_1, std::placeholders::_2));
 }
 void CServer::Start()
 {
@@ -70,6 +100,15 @@ void CServer::Start()
 		XWARN("Reigster server failed!");
 		assert(false);
 	}
+
+	//直连redis
+	if (m_redis.Connect(m_config.cacheServer.ip, m_config.cacheServer.port, "bighat"))
+	{
+		XINFO("Connect redis success!");
+	}
+
+	//初始化脚本
+	CScriptInterface::GetInstance()->InitScript();
 
 	m_bRunning = true;
 }

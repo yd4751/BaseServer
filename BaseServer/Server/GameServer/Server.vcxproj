@@ -79,7 +79,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(RootDir)Server\Base;$(RootDir)CmdDefine;$(RootDir)Core;$(RootDir)include;$(RootDir)Protocol;$(RootDir)Protocol\Protobuf;$(RootDir)ProtocolParse;$(RootDir)Rpc;$(RootDir)Server;$(RootDir)Tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(RootDir)Server\CacheData;$(RootDir)Server\Base;$(RootDir)CmdDefine;$(RootDir)Core;$(RootDir)include;$(RootDir)Protocol;$(RootDir)Protocol\Protobuf;$(RootDir)ProtocolParse;$(RootDir)Rpc;$(RootDir)Server;$(RootDir)Tools</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_WIN32_WINDOWS;__WINDOWS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -152,8 +152,12 @@
     <ClCompile Include="..\JsonPacket\JsonParseRequest_GateServer.cpp" />
     <ClCompile Include="..\JsonPacket\JsonParseRequest_LoginServer.cpp" />
     <ClCompile Include="CConfig.cpp" />
+    <ClCompile Include="CScriptInterface.cpp" />
     <ClCompile Include="CServer.cpp" />
+    <ClCompile Include="CUser.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="RedisOperate.cpp" />
+    <ClCompile Include="Script.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\CmdDefine\CommondDefine.h" />
@@ -176,7 +180,16 @@
     <ClInclude Include="..\Base\CNodeServerMgr.h" />
     <ClInclude Include="..\Base\CServerBase.h" />
     <ClInclude Include="CConfig.h" />
+    <ClInclude Include="CScriptInterface.h" />
     <ClInclude Include="CServer.h" />
+    <ClInclude Include="CUser.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Server.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="game.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

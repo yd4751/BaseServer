@@ -3,11 +3,19 @@
 #include "CSingleton.h"
 #include "CServerBase.h"
 #include "CConfig.h"
+#include "CRedis.h"
+#include "CSQLInterface.h"
+#include "CUser.h"
 
 class CServer: public CServerBase, public CSingleton<CServer>
 {
 	bool			m_bRunning;
 	CConfig			m_config;
+	//
+	CSQLInterface					m_sql;
+	CRedis							m_Redis;
+	//
+	CNodeManager<uint32_t, std::shared_ptr<CUser>>		m_users;
 
 public:
 	CServer();
@@ -28,6 +36,13 @@ public:
 	//RegisterMessage
 	ReturnType OnLogin(int, std::shared_ptr<CMessage>);
 	ReturnType OnGuestLogin(int, std::shared_ptr<CMessage>);
+
+	//DB相关
+protected:
+	bool DBLogin(std::shared_ptr<CUser>);
+	//Redis相关
+protected:
+	bool RDSaveUser(std::shared_ptr<CUser>);
 };
 
 #endif

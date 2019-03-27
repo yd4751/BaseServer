@@ -1,0 +1,7 @@
+CenterServer£º  127.0.0.1  8800
+CacheServer:     127.0.0.1  8700
+DBServer:          127.0.0.1  8600
+GateServe:         127.0.0.1  8500
+LoginServer:      127.0.0.1  8400
+GameServer:      127.0.0.1  8300
+LogServer:         127.0.0.1  8200

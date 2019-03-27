@@ -41,8 +41,10 @@ ReturnType CServer::OnDisconnect(int, std::shared_ptr<CMessage>)
 ;
 void CServer::Init()
 {
-	RegisterMessage(NS_Gate::Reply::CMD_AUTH, std::bind(&CServer::OnAuthSucess, this, std::placeholders::_1, std::placeholders::_2));
-	RegisterMessage(NS_Login::Reply::CMD_LOGIN, std::bind(&CServer::OnLoginSucess, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(NS_Gate::Reply::Auth, std::bind(&CServer::OnAuthSucess, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(NS_Login::Reply::Login, std::bind(&CServer::OnLoginSucess, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(NS_Game::Reply::Login, std::bind(&CServer::OnGameLogin, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(451001, std::bind(&CServer::OnRoomLogin, this, std::placeholders::_1, std::placeholders::_2));
 }
 void CServer::Start()
 {
@@ -65,7 +67,7 @@ void CServer::Start()
 	NetCore::Start();
 
 	//连接网关服务器
-	m_nodeServers.Add(ServerType::SERVER_GATE, "127.0.0.1", 5555);
+	m_nodeServers.Add(ServerType::SERVER_GATE, "127.0.0.1", 8500);
 	SendAuth();
 
 	m_bRunning = true;

@@ -40,27 +40,41 @@ ReturnType CServer::OnDisconnect(int, std::shared_ptr<CMessage>)
 }
 ReturnType CServer::OnLogin(int fd, std::shared_ptr<CMessage> msg)
 {
-	Send(fd, NS_Login::Reply::CMD_LOGIN);
+	Send(fd, NS_Login::Reply::Login);
 	return ReturnType();
 }
 ReturnType CServer::OnGuestLogin(int fd, std::shared_ptr<CMessage> msg)
 {
-	//测试
+	//
+	std::shared_ptr<CUser>  pUser = std::make_shared<CUser>();
+	if (!DBLogin(pUser))
+	{
+		XINFO(__FUNCTION__,"fail!");
+		return ReturnType::Return_true;
+	}
+	if (!RDSaveUser(pUser))
+	{
+		XINFO(__FUNCTION__, "fail!");
+		return ReturnType::Return_true;
+	}
+	//
+	m_users.Add(pUser->id, pUser);
+	
 	NS_Login::ReplyUserLogin reply;
-	reply.id = Tools::GetRandom(100000, 999999);//随机6位数id
-	reply.money = Tools::GetRandom(100, 100000);//随机携带
-	reply.sex = Tools::GetRandom(0, 2);//随机性别 0-未填写 1-男 2-女
-	reply.nickName = "大帽子:" + std::to_string(reply.id);
-	reply.avatar = "www.google.com";
+	reply.id = pUser->id;
+	reply.money = pUser->money;
+	reply.sex = pUser->sex;
+	reply.nickName = pUser->nickName;
+	reply.avatar = pUser->avatar;
 
-	Send(fd,NS_Login::Reply::CMD_LOGIN,ProtoParseJson::MakePacket< NS_Login::ReplyUserLogin>(reply));
-	return ReturnType();
+	Send(fd,NS_Login::Reply::Login,ProtoParseJson::MakePacket< NS_Login::ReplyUserLogin>(reply));
+	return ReturnType::Return_true;
 }
 ;
 void CServer::Init()
 {
-	RegisterMessage(NS_Login::Request::CMD_LOGIN, std::bind(&CServer::OnLogin, this, std::placeholders::_1, std::placeholders::_2));
-	RegisterMessage(NS_Login::Request::CMD_GUEST_LOGIN, std::bind(&CServer::OnGuestLogin, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(NS_Login::Request::Login, std::bind(&CServer::OnLogin, this, std::placeholders::_1, std::placeholders::_2));
+	RegisterMessage(NS_Login::Request::GuestLogin, std::bind(&CServer::OnGuestLogin, this, std::placeholders::_1, std::placeholders::_2));
 }
 void CServer::Start()
 {
@@ -90,6 +104,24 @@ void CServer::Start()
 		XWARN("Reigster server failed!");
 		assert(false);
 	}
+
+#if 0
+	//连接缓存服务器, 
+	m_nodeServers.Add(ServerType::SERVER_CACHE, m_config.cacheServer.ip, m_config.cacheServer.port);
+	//连接DB服务器
+	m_nodeServers.Add(ServerType::SERVER_DB, m_config.dbServer.ip, m_config.dbServer.port);
+#else
+	//直连redis
+	if (m_Redis.Connect(m_config.cacheServer.ip, m_config.cacheServer.port, "bighat"))
+	{
+		XINFO("Connect redis success!");
+	}
+	//直连mysql
+	if (m_sql.Connect(m_config.dbServer.ip, "root", "123456", "MYSQL", m_config.dbServer.port))
+	{
+		XINFO("Connect mysql success!");
+	}
+#endif
 
 	m_bRunning = true;
 }

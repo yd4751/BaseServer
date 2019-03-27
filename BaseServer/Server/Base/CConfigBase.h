@@ -3,6 +3,11 @@
 #include <string>
 #include <cstdint>
 
+struct ServerConfig
+{
+	std::string ip = "";
+	uint32_t port = 0;
+};
 class CConfigBase
 {
 public:

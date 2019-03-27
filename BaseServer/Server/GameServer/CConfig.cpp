@@ -1,13 +1,14 @@
 #include "CConfig.h"
 
 
-
 CConfig::CConfig()
 {
 	//≤‚ ‘
-	bindPort = 3333;
+	bindPort = 8300;
 	registerIP = "127.0.0.1";
-	registerPort = 6666;
+	registerPort = 8800;
+	cacheServer.ip = "127.0.0.1";
+	cacheServer.port = 8888;
 }
 
 

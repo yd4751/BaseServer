@@ -10,6 +10,9 @@ class CServer: public CServerBase, public CSingleton<CServer>
 	CConfig			m_config;
 
 public:
+	uint32_t		m_nUserID;
+
+public:
 	CServer();
 	virtual ~CServer();
 
@@ -34,6 +37,14 @@ public:
 	void SendAuth();
 	void SendLogin();
 	void SendGuestLogin();
+	void SendGameLogin(int id);
+
+	//”Œœ∑œ‡πÿ
+public:
+	void SendRoomLogin();
+public:
+	ReturnType OnGameLogin(int, std::shared_ptr<CMessage>);
+	ReturnType OnRoomLogin(int, std::shared_ptr<CMessage>);
 };
 
 #endif

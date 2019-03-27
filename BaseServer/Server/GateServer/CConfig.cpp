@@ -5,9 +5,9 @@
 CConfig::CConfig()
 {
 	//≤‚ ‘
-	bindPort = 5555;
+	bindPort = 8500;
 	registerIP = "127.0.0.1";
-	registerPort = 6666;
+	registerPort = 8800;
 	nAuthTime = 5000;
 }
 

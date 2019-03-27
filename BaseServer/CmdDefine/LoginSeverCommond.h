@@ -7,8 +7,8 @@ namespace NS_Login	//300000
 		enum commond
 		{
 			CMD_NULL = 300000,
-			CMD_LOGIN,
-			CMD_GUEST_LOGIN,
+			Login,
+			GuestLogin,
 			CMD_MAX = 350000,
 		};
 	};
@@ -17,7 +17,7 @@ namespace NS_Login	//300000
 		enum commond
 		{
 			CMD_NULL = 350000,
-			CMD_LOGIN,
+			Login,
 			CMD_MAX = 400000,
 		};
 	};

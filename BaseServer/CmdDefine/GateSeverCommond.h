@@ -8,7 +8,7 @@ namespace NS_Gate	//100000
 		enum commond
 		{
 			CMD_NULL = 100000,
-			CMD_AUTH,
+			Auth,
 			CMD_MAX = 150000,
 		};
 	};
@@ -17,7 +17,7 @@ namespace NS_Gate	//100000
 		enum commond
 		{
 			CMD_NULL = 150000,
-			CMD_AUTH,
+			Auth,
 			CMD_MAX = 200000,
 		};
 	};

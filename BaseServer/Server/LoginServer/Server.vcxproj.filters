@@ -108,6 +108,15 @@
     <ClCompile Include="..\JsonPacket\JsonParseRequest_LoginServer.cpp">
       <Filter>公共文件</Filter>
     </ClCompile>
+    <ClCompile Include="DBOperate.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RedisOperate.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CUser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CServer.h">
@@ -173,5 +182,24 @@
     <ClInclude Include="..\Base\CNodeServerMgr.h">
       <Filter>公共文件</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CUser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CacheData\CacheDataDefine.h">
+      <Filter>公共文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Server.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="login.ico">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>
