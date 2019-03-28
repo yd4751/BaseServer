@@ -35,7 +35,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\code\CAcceptor.cpp" />
     <ClCompile Include="..\code\CArray.cpp" />
     <ClCompile Include="..\code\CBaseConnection.cpp" />
     <ClCompile Include="..\code\CBaseSocket.cpp" />
@@ -45,6 +44,7 @@
     <ClCompile Include="..\code\CCommuniterGroups.cpp" />
     <ClCompile Include="..\code\CCommuniterMgr.cpp" />
     <ClCompile Include="..\code\CConnection.cpp" />
+    <ClCompile Include="..\code\CDataCache.cpp" />
     <ClCompile Include="..\code\CEasyLog.cpp" />
     <ClCompile Include="..\code\CMessage.cpp" />
     <ClCompile Include="..\code\CNetCoreInterface.cpp" />
@@ -58,7 +58,6 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\code\CAcceptor.h" />
     <ClInclude Include="..\code\CArray.h" />
     <ClInclude Include="..\code\CBaseConnection.h" />
     <ClInclude Include="..\code\CBaseSocket.h" />
@@ -68,6 +67,7 @@
     <ClInclude Include="..\code\CCommuniterGroups.h" />
     <ClInclude Include="..\code\CCommuniterMgr.h" />
     <ClInclude Include="..\code\CConnection.h" />
+    <ClInclude Include="..\code\CDataCache.h" />
     <ClInclude Include="..\code\CEasyLog.h" />
     <ClInclude Include="..\code\CMessage.h" />
     <ClInclude Include="..\code\CNetCoreInterface.h" />

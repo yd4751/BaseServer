@@ -92,10 +92,30 @@ public:
 	};
 
 public:
+	bool InitConnect()
+	{
+		if (GetStatus() != ConnectionStatus::CONNECT_STATUS_INIT)
+			return false;
+		OnConnected();
+		return true;
+	}
+	bool InitClose()
+	{
+		if (GetStatus() != ConnectionStatus::CONNECT_STATUS_CLOSED)
+			return false;
+		OnClosed();
+		return true;
+	}
 	bool Read() { 
-		
-		if (GetStatus() == ConnectionStatus::CONNECT_STATUS_READ)
+		if (GetStatus() == ConnectionStatus::CONNECT_STATUS_WAIT_CLOSE || GetStatus() == ConnectionStatus::CONNECT_STATUS_CLOSED)
+			return false;
+		//if (m_socket->status == SocketStatus::READ)
 		{
+			if (bServer)
+			{
+				m_socket->status = SocketStatus::WRITE;
+				return true;
+			}
 			int32_t nCurReadLen = CSocketInterface::GetInstance()->Read(GetID(), m_Recv.GetBuf(), m_Recv.GetMaxSize());
 			if (nCurReadLen < 0)
 			{
@@ -126,7 +146,7 @@ public:
 						{
 							//
 							m_curMessage->GetData()->Get()[m_curMessage->GetSize()] = 0;
-							//CEasylog::GetInstance()->info("Handler request:", " Cmd:", m_curMessage->GetCommond()," : " , (char*)m_curMessage->GetData()->Get());
+							CEasylog::GetInstance()->info("Handler request:", " Cmd:", m_curMessage->GetCommond()," : " , (char*)m_curMessage->GetData()->Get());
 							m_handler(GetID(), m_curMessage);
 						}
 					}
@@ -136,7 +156,8 @@ public:
 						break;
 					}
 				}
-				UpdateStatus(ConnectionStatus::CONNECT_STATUS_WRITE);
+				//UpdateStatus(ConnectionStatus::CONNECT_STATUS_WRITE);
+				m_socket->status = SocketStatus::WRITE;
 				return true;
 			}
 		}
@@ -144,7 +165,8 @@ public:
 		return false; 
 	};
 	bool Write() { 
-		if (m_BufWrite.Size() > 0 && GetStatus() != ConnectionStatus::CONNECT_STATUS_READ)
+		if (bServer) return false;
+		if (m_BufWrite.Size() > 0 && m_socket->status != SocketStatus::READ)
 		{
 			int32_t nWriteLen = 0;
 			if (m_Send.GetLeftSize() > 0)
@@ -159,13 +181,13 @@ public:
 			int32_t nCurWriteLen = CSocketInterface::GetInstance()->Write(GetID(), m_Send.GetBuf(), nWriteLen);
 			if (nCurWriteLen < 0)
 			{
-				//CEasylog::GetInstance()->error("error in write!", nCurWriteLen);
+				CEasylog::GetInstance()->error("error in write!", nCurWriteLen);
 				return false;
 			}
 			else if (nCurWriteLen == 0)
 			{
 				UpdateStatus(ConnectionStatus::CONNECT_STATUS_CLOSED);
-				//CEasylog::GetInstance()->debug(__FUNCTION__, "Connection closed!", GetID());
+				CEasylog::GetInstance()->debug(__FUNCTION__, "Connection closed!", GetID());
 				return true;
 			}
 			else

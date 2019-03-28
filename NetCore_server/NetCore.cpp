@@ -18,13 +18,37 @@ bool NetWorkEvent(int nClientID, int nCmd, int nMsgLength, char* msgBuf, NetCore
 {
 	std::cout << __FUNCTION__ << ": " << nClientID << " Cmd:" << nCmd << "  Length:" << nMsgLength << std::endl;
 	
-	//std::string reply("1234567890");
-	//NetCore::SendData(nClientID, 1234, reply.c_str(), reply.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
+	Json::Value sendStr;
+	int nReplyCmd = 0;
+	//auth
+	if (nCmd == 100001)
+	{
+		nReplyCmd = 150001;
+	}
+	//login
+	else if (nCmd == 300002)
+	{
+		nReplyCmd = 350001;
+		sendStr["id"] = 123456;			//用户id
+		sendStr["sex"] = 2;		//性别
+		sendStr["money"] = 100;		//携带
+		sendStr["nickName"] = "哈哈";	//昵称
+		sendStr["avatar"] = "www.google.com";		//头像地址
+	}
+	//game login
+	else if (nCmd == 400001)
+	{
+		nReplyCmd = 450001;
+	}
+	//room login
+	else if (nCmd == 401001)
+	{
+		nReplyCmd = 451001;
+	}
+	else return true;
 
-	//Json::Value sendStr;
-	//sendStr["code"] = 1;
-	//std::string reply = sendStr.toStyledString();
-	//NetCore::SendData(nClientID, 6004, reply.c_str(), reply.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
+	std::string reply = sendStr.toStyledString();
+	NetCore::SendData(nClientID, nReplyCmd, reply.c_str(), reply.length(), NetCore::ProtocolType::PROTO_TYPE_JSON);
 	return true;
 };
 void OnTimeOut(int timerID)
@@ -160,11 +184,17 @@ int main()
 
 	//int nid = NetCore::AddTimer(1000);
 	//nid = NetCore::AddTimer(5000);
-	NetCore::Config(0);
-	NetCore::Start();
+	NetCore::Config(8500);
+	NetCore::RegisterEvnetHandler(NetWorkEvent);
 	NetCore::RegisterTimerHandler(OnTimeOut);
-	NetCore::AddTimer(1000);
+	NetCore::Start();
 
+	NetCore::AddTimer(1000);
+	while (true)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+/*
 	while (true)
 	{
 		//std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -172,7 +202,7 @@ int main()
 		std::cin >> input;
 		if (input == "start")
 		{
-			NetCore::Config(9999);
+			NetCore::Config(8500);
 			NetCore::RegisterEvnetHandler(NetWorkEvent);
 			NetCore::RegisterTimerHandler(OnTimeOut);
 			NetCore::Start();
@@ -186,7 +216,7 @@ int main()
 		{
 			break;
 		}
-	}
+	}*/
 #endif
 
 

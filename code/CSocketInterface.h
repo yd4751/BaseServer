@@ -17,22 +17,23 @@
 #include "CTools.h"
 #include "CEasyLog.h"
 
-#define MAX_OPEN_FD 1024
-#define MAX_CONNECT_WAIT_TIME  5000
+#define MAX_OPEN_FD 2048
+#define MAX_CONNECT_WAIT_TIME  500
+#if defined(__WINDOWS__)
+#define FD_SETSIZE MAX_OPEN_FD  //windows默认最大select数为64
+#endif
 class CSocketInterface:
 	public CSingleton<CSocketInterface>,
 	public CBaseSocket
 {
-	int32_t  server_socket;          //是保存服务器监听端口的 socket
+	struct sockaddr_in cliaddr;
+	uint32_t clilen = sizeof(cliaddr);
 #if defined(__WINDOWS__)
 	fd_set  fdread;                 //创建一个文件集合
 #elif defined(__LINUX__)
 	int32_t efd;
 	struct epoll_event ep[MAX_OPEN_FD];
-	struct epoll_event epNewFd;
-
-	struct sockaddr_in cliaddr;
-	socklen_t clilen = sizeof(cliaddr);
+	struct epoll_event epNewFd;	
 #endif
 
 public:
@@ -43,10 +44,8 @@ public:
 	~CSocketInterface()
 	{
 #if defined(__WINDOWS__)
-		closesocket(server_socket);
 		WSACleanup();
 #elif defined(__LINUX__)
-		close(server_socket);
 		close(efd);
 #endif
 	};
@@ -67,46 +66,47 @@ public:
 		efd = epoll_create(MAX_OPEN_FD);
 #endif
 	};
-	virtual int32_t CreateListen(std::string ip, int32_t port)
+	virtual std::shared_ptr<CSocketInfo> CreateListen(std::string ip, int32_t port)
 	{
+		std::shared_ptr<CSocketInfo> pSocket = std::make_shared<CSocketInfo>();
 #if defined(__WINDOWS__)
-		server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		if (server_socket == INVALID_SOCKET)
+		pSocket->fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		if (pSocket->fd == INVALID_SOCKET)
 		{
 			CEasylog::GetInstance()->error("create socket fail!");
-			return -1;
+			return nullptr;
 		}
 
 		int opt = 1;
-		if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) != 0)
+		if (setsockopt(pSocket->fd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) != 0)
 		{
 			CEasylog::GetInstance()->error("setsockopt fail!");
-			return -1;
+			return nullptr;
 		}
 		//绑定IP和端口      
 		sockaddr_in sin;
 		sin.sin_family = AF_INET;
 		sin.sin_port = htons(port);
 		sin.sin_addr.S_un.S_addr = INADDR_ANY;
-		if (bind(server_socket, (LPSOCKADDR)&sin, sizeof(sin)) == SOCKET_ERROR)
+		if (bind(pSocket->fd, (LPSOCKADDR)&sin, sizeof(sin)) == SOCKET_ERROR)
 		{
 			CEasylog::GetInstance()->error("bind fail!");
-			return -1;
+			return nullptr;
 		}
 		//开始监听      
-		if (listen(server_socket, 5) == SOCKET_ERROR)
+		if (listen(pSocket->fd, 5) == SOCKET_ERROR)
 		{
 			CEasylog::GetInstance()->error("listen fail!");
-			return -1;
+			return nullptr;
 		}
 
 
 #elif defined(__LINUX__)
-		server_socket = socket(AF_INET, SOCK_STREAM, 0);
-		if (server_socket <= 0)
+		pSocket->fd = socket(AF_INET, SOCK_STREAM, 0);
+		if (pSocket->fd <= 0)
 		{
 			CEasylog::GetInstance()->error("create socket fail!");
-			return -1;
+			return nullptr;
 		}
 
 		struct sockaddr_in servaddr;
@@ -115,32 +115,33 @@ public:
 		servaddr.sin_port = htons(port);
 		// 端口复用
 		int opt = 1;
-		if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, (const void *)&opt, sizeof(opt)) != 0)
+		if (setsockopt(pSocket->fd, SOL_SOCKET, SO_REUSEADDR, (const void *)&opt, sizeof(opt)) != 0)
 		{
 			perror("setsockopt fail!");
-			return -1;
+			return nullptr;
 		}
 		//
-		if (bind(server_socket, (struct sockaddr*)&servaddr, sizeof(servaddr)) != 0)
+		if (bind(pSocket->fd, (struct sockaddr*)&servaddr, sizeof(servaddr)) != 0)
 		{
 			perror("bind fail!");
-			return -1;
+			return nullptr;
 		}
 		//
-		if (listen(server_socket, 20) != 0)
+		if (listen(pSocket->fd, 20) != 0)
 		{
 			perror("listen fail!");
-			return -1;
+			return nullptr;
 		}
 	
 		//
 		epNewFd.events = EPOLLIN;
-		epNewFd.data.fd = server_socket;
-		epoll_ctl(efd, EPOLL_CTL_ADD, server_socket, &epNewFd);
+		epNewFd.data.fd = pSocket->fd;
+		epoll_ctl(efd, EPOLL_CTL_ADD, pSocket->fd, &epNewFd);
 #endif
 		//异步
-		SetASync(server_socket);
-		return server_socket;
+		SetASync(pSocket->fd);
+		m_allSockets.emplace(pSocket->fd, pSocket);
+		return pSocket;
 	};
 
 	virtual void SetASync(int32_t id)
@@ -168,7 +169,7 @@ public:
 
 		time_t timeout = nMaxWaitTime;          //(超时时间设置为nMaxWaitTime毫秒)
 		struct timeval timeo;
-		timeo.tv_sec = timeout / 1000;
+		timeo.tv_sec = (long)timeout / 1000;
 		timeo.tv_usec = (timeout % 1000) * 1000;
 
 		int retval = select(fd + 1, NULL, &set, NULL, &timeo);           //事件监听
@@ -199,11 +200,10 @@ public:
 		}
 		return true;
 #elif defined(__LINUX__)
-		fd_set readfds;
 		fd_set writefds;
 		struct timeval timeout;
 
-		FD_ZERO(&readfds);
+		FD_ZERO(&writefds);
 		FD_SET(fd, &writefds);
 
 		timeout.tv_sec = nMaxWaitTime/1000; //timeout is nMaxWaitTime ms
@@ -237,35 +237,35 @@ public:
 		return true;
 #endif
 	}
-	virtual int32_t Connect(std::string ip, int32_t port)
+	virtual std::shared_ptr<CSocketInfo> Connect(std::string ip, int32_t port)
 	{
-		int32_t sclient = -1;
+		std::shared_ptr<CSocketInfo> pSocket = std::make_shared<CSocketInfo>();
 #if defined(__WINDOWS__)
-		sclient = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);		
-		if (sclient == INVALID_SOCKET) 
+		pSocket->fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		if (pSocket->fd == INVALID_SOCKET)
 		{ 		
-			return -1; 
+			return nullptr;
 		}				
 		//
-		SetASync(sclient);
+		SetASync(pSocket->fd);
 		sockaddr_in serAddr;		
 		serAddr.sin_family = AF_INET;		
 		serAddr.sin_port = htons(port);
 		serAddr.sin_addr.S_un.S_addr = inet_addr(ip.c_str());
-		int ret = connect(sclient, (sockaddr *)&serAddr, sizeof(serAddr));
+		int ret = connect(pSocket->fd, (sockaddr *)&serAddr, sizeof(serAddr));
 		int tt = errno;
 		int ff = GetLastError();
 		if(ret == SOCKET_ERROR && GetLastError() != WSAEWOULDBLOCK)//EINPROGRESS标识正在处理
 		{  
 			//连接失败 				
-			Close(sclient);
-			return -1;		
+			Close(pSocket->fd);
+			return nullptr;		
 		}
-		if (ret == SOCKET_ERROR && !WaitASyncConnectDone(sclient,MAX_CONNECT_WAIT_TIME))
+		if (ret == SOCKET_ERROR && !WaitASyncConnectDone(pSocket->fd,MAX_CONNECT_WAIT_TIME))
 		{
 			//连接失败 				
-			Close(sclient);
-			return -1;
+			Close(pSocket->fd);
+			return nullptr;
 		}
 #elif defined(__LINUX__)
 		struct sockaddr_in address;
@@ -274,30 +274,31 @@ public:
 		inet_pton(AF_INET, ip.c_str(), &address.sin_addr);
 		address.sin_port = htons(port);
 
-		sclient = socket(PF_INET, SOCK_STREAM, 0);
-		if (sclient <= 0)
+		pSocket->fd = socket(PF_INET, SOCK_STREAM, 0);
+		if (pSocket->fd <= 0)
 		{
-			return -1;
+			return nullptr;
 		}
 		//
-		SetASync(sclient);
-		int ret = connect(sclient, (struct sockaddr*)&address, sizeof(address));
+		SetASync(pSocket->fd);
+		int ret = connect(pSocket->fd, (struct sockaddr*)&address, sizeof(address));
 		if (ret != 0 && errno != EINPROGRESS)
 		{
-			return -1;
+			return nullptr;
 		}
-		if (ret != 0 && !WaitASyncConnectDone(sclient, MAX_CONNECT_WAIT_TIME))
+		if (ret != 0 && !WaitASyncConnectDone(pSocket->fd, MAX_CONNECT_WAIT_TIME))
 		{
 			//连接失败 				
-			Close(sclient);
-			return -1;
+			Close(pSocket->fd);
+			return nullptr;
 		}
 		//
 		epNewFd.events = EPOLLIN;
-		epNewFd.data.fd = sclient;
-		epoll_ctl(efd, EPOLL_CTL_ADD, sclient, &epNewFd);
+		epNewFd.data.fd = pSocket->fd;
+		epoll_ctl(efd, EPOLL_CTL_ADD, pSocket->fd, &epNewFd);
 #endif
-		return sclient;
+		m_allSockets.emplace(pSocket->fd, pSocket);
+		return pSocket;
 	};
 
 
@@ -310,58 +311,78 @@ public:
 		epoll_ctl(efd, EPOLL_CTL_DEL, id, NULL);
 		close(id);
 #endif
+		m_allSockets.erase(id);
 	};
 
-
-	virtual int32_t Accept()
+	virtual std::shared_ptr<CSocketInfo> Accept(std::shared_ptr<CSocketInfo> pServer)
 	{
-		int32_t client = -1;
+		std::shared_ptr<CSocketInfo> pSocket = std::make_shared<CSocketInfo>();
+		
+
 #if defined(__WINDOWS__)
-		client = accept(server_socket, NULL, NULL);
-		if (INVALID_SOCKET == client)
-			return -1;
+		pSocket->fd = accept(pServer->fd, (struct sockaddr*)&cliaddr, (int*)&clilen);
+		if (INVALID_SOCKET == pSocket->fd)
+			return nullptr;
+
+		struct sockaddr_in *sockAddr = (struct sockaddr_in*)&cliaddr;
+		pSocket->port = ntohs(sockAddr->sin_port);
+		pSocket->ip.assign(inet_ntoa(sockAddr->sin_addr));
 #elif defined(__LINUX__)
-		client = accept(server_socket, (struct sockaddr*)&cliaddr, &clilen);
-		if (client > 0)
-		{
-			//
-			epNewFd.events = EPOLLIN;
-			epNewFd.data.fd = client;
-			epoll_ctl(efd, EPOLL_CTL_ADD, client, &epNewFd);
-		}
+		pSocket->fd = accept(pServer->fd, (struct sockaddr*)&cliaddr, (socklen_t*)&clilen);
+		if (pSocket->fd <= 0)
+			return nullptr;
+	
+		struct sockaddr_in *sockAddrInfo = (struct sockaddr_in*)&cliaddr;
+		char strAddr[INET_ADDRSTRLEN] = { 0 };
+
+		pSocket->port = ntohs(sockAddrInfo->sin_port);
+		inet_ntop(AF_INET,&(sockAddrInfo->sin_addr), strAddr, clilen);
+		pSocket->ip.assign(strAddr);
+		//
+		epNewFd.events = EPOLLIN;
+		epNewFd.data.fd = pSocket->fd;
+		epoll_ctl(efd, EPOLL_CTL_ADD, pSocket->fd, &epNewFd);
 #endif
-		return client;
+		CEasylog::GetInstance()->info("IP:",pSocket->ip," Port:",pSocket->port);
+		m_allSockets.emplace(pSocket->fd, pSocket);
+		return pSocket;
 	};
 
 
-	virtual void GetActives(std::vector<int32_t>& input, std::vector<int32_t>& output)
+	virtual void Actives(std::vector<int32_t>& avtives)
 	{
-		output.clear();
+		avtives.clear();
 #if defined(__WINDOWS__)
 		FD_ZERO(&fdread);                            //清楚监听文件集中的所有文件
-		for (auto it : input)
+		for (auto it : m_allSockets)
 		{
-			FD_SET(it, &fdread);
+			FD_SET(it.second->fd, &fdread);
 		}
 
 		struct timeval tm;
 		tm.tv_sec = 0;
-		tm.tv_usec = 200;
+		tm.tv_usec = 2;
 
-		if (select(0, &fdread, NULL, NULL, &tm) == SOCKET_ERROR)
-			return;
-
-		for (auto it : input)
+		//return : 0超时  -1所有描述符清0  >0有激活
+		if (select(0, &fdread, NULL, NULL, &tm) > 0)
 		{
-			if (FD_ISSET(it, &fdread)) output.emplace_back(it);
+			for (auto it : m_allSockets)
+			{
+				if (FD_ISSET(it.second->fd, &fdread))
+				{
+					avtives.emplace_back(it.second->fd);
+					//it.second->status = SocketStatus::READ;
+					//CEasylog::GetInstance()->info("FD :", it.first, " ready to read!");
+				}
+			}
+			//CEasylog::GetInstance()->info("TotalSize:", m_allSockets.size()," ActiveSize:", avtives.size());
 		}
 #elif defined(__LINUX__)
-		int32_t nready = epoll_wait(efd, ep, MAX_OPEN_FD, -1);
+		int32_t nready = epoll_wait(efd, ep, MAX_OPEN_FD, 2);//毫秒，0会立即返回，-1将不确定
 		for (int i = 0; i < nready; ++i)
 		{
-			output.emplace_back((int32_t)ep[i].data.fd);
+			avtives.emplace_back((int32_t)ep[i].data.fd);
 		}
-
 #endif
 	};
 	virtual int32_t Read(int32_t id, char* readBuf, int32_t readLen)

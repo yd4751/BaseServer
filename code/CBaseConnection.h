@@ -12,6 +12,7 @@ typedef std::function<void(int32_t,std::shared_ptr<CMessage>)>  callBackMessage;
 
 enum ConnectionStatus
 {
+	CONNECT_STATUS_INIT,
 	CONNECT_STATUS_WRITE,
 	CONNECT_STATUS_READ,
 	CONNECT_STATUS_WAIT_CLOSE,
@@ -20,20 +21,20 @@ enum ConnectionStatus
 class CBaseConnection
 {
 	ConnectionStatus				m_status;
-	int32_t							m_id;
 
 public:
+	bool bServer = false;
+	std::shared_ptr<CSocketInfo >  m_socket = nullptr;
+
 	CBaseConnection()
 	{
 		CEasylog::GetInstance()->info("new Construct Connection!");
-		m_status = CONNECT_STATUS_WRITE;
-		m_id = -1;
+		m_status = CONNECT_STATUS_INIT;
 		m_curMessage = std::make_shared<CMessage>();
-		m_bNotiyConnect = true;
 	};
 	virtual ~CBaseConnection() 
 	{
-		CSocketInterface::GetInstance()->Close(m_id);
+		CSocketInterface::GetInstance()->Close(m_socket->fd);
 	};
 
 public:
@@ -63,25 +64,15 @@ public:
 	{
 		m_handler = handler;
 	}
-	int32_t GetID() { return m_id; }
-	void SetID(int32_t id) { m_id = id; };
+	int32_t GetID() { return m_socket->fd; }
 
 	callBackMessage					m_handler;
 	std::shared_ptr<CMessage>		m_curMessage;
-	bool							m_bNotiyConnect;	//第一次连接通知
 
 	virtual uint32_t SendData(std::string data) { return 0; };
 	virtual uint32_t SendData(uint32_t nCmd, ProtocolType nProtoType, const std::string strInput) { return ErrorCode::ERROR_CODE_NULL; }
 	virtual uint32_t SendData(uint32_t nCmd, const char* pInput, uint32_t inputLength, ProtocolType nProtoType) { return ErrorCode::ERROR_CODE_NULL; }
-	bool Connect(std::string ip, int32_t port)
-	{
-		int32_t nSocketID = CSocketInterface::GetInstance()->Connect(ip, port);
-		if (nSocketID <= 0)
-			return false;
 
-		SetID(nSocketID);
-		return true;
-	}
 	void Disconnect()
 	{
 		UpdateStatus(ConnectionStatus::CONNECT_STATUS_WAIT_CLOSE);
@@ -92,7 +83,7 @@ public:
 		{
 			m_curMessage->SetSize(0);
 			m_curMessage->SetCommond(ClientMangerCmd::DISCONNECT);
-			m_handler(m_id, m_curMessage);
+			m_handler(GetID(), m_curMessage);
 		}
 	}
 	void OnConnected()
@@ -101,8 +92,9 @@ public:
 		{
 			m_curMessage->SetSize(0);
 			m_curMessage->SetCommond(ClientMangerCmd::CONNECT);
-			m_handler(m_id, m_curMessage);
+			m_handler(GetID(), m_curMessage);
 		}
+		m_status = CONNECT_STATUS_WRITE;
 	}
 };
 

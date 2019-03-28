@@ -39,13 +39,12 @@ typedef struct TimerInfo
 }TimerInfo;
 
 class CTimer:
-	public CSingleton<CTimer>,
-	public CBaseWorker
+	public CSingleton<CTimer>//,public CBaseWorker
 {
 	int32_t								m_curTimerID;
 	int32_t								m_nCurDelyTime;
 	int32_t								m_nextDelyTime;
-
+	int64_t								m_lastTimeStamp;
 	cbTimerHandler						m_pHandler;
 	//这样性能可能不太高，先凑活用
 	CNodeManager<int32_t, std::shared_ptr<TimerInfo>>		m_Timers;
@@ -57,6 +56,7 @@ public:
 		m_nextDelyTime = 0;
 		m_curTimerID = 0;
 		m_Timers.Clear();
+		m_lastTimeStamp = 0;
 	}
 	~CTimer()
 	{
@@ -66,17 +66,22 @@ public:
 public:
 	void Start()
 	{
-		CBaseWorker::Start();
+		//CBaseWorker::Start();
 	}
 	void Stop()
 	{
 		m_Timers.Clear();
-		CBaseWorker::Stop();
+		//CBaseWorker::Stop();
 	}
 	virtual bool Work()
 	{
 		//
-		m_nCurDelyTime = m_nextDelyTime;
+		if(m_lastTimeStamp == 0)
+			m_nCurDelyTime = 0;
+		else 
+			m_nCurDelyTime = Tools::GetCurMillisecond() - m_lastTimeStamp;
+
+		m_lastTimeStamp = Tools::GetCurMillisecond();
 
 		std::shared_ptr<TimerInfo > pCur = m_Timers.GetMatch([&](std::shared_ptr<TimerInfo > cur)->bool {
 			cur->UpdateExpired(this->m_nCurDelyTime);
@@ -89,8 +94,7 @@ public:
 		{
 			if (m_pHandler)
 			{
-				std::lock_guard<std::mutex> gurd(m_netEventlock);
-
+				//std::lock_guard<std::mutex> gurd(m_netEventlock);
 				m_pHandler(pCur->id);
 			}
 			//回调中可能会重置timer
@@ -103,8 +107,9 @@ public:
 		}
 		else
 		{
-			if (this->m_nextDelyTime == 0) this->m_nextDelyTime = 10;
-			SetNextSleepTime(this->m_nextDelyTime);
+			//if (this->m_nextDelyTime == 0) this->m_nextDelyTime = 1;
+			this->m_nextDelyTime = 1;
+			//SetNextSleepTime(this->m_nextDelyTime);
 			//std::this_thread::sleep_for(std::chrono::milliseconds(this->m_nextDelyTime));
 			return false;
 		}

@@ -157,7 +157,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\code\CAcceptor.cpp" />
     <ClCompile Include="..\code\CArray.cpp" />
     <ClCompile Include="..\code\CBaseConnection.cpp" />
     <ClCompile Include="..\code\CBaseSocket.cpp" />
@@ -180,7 +179,6 @@
     <ClCompile Include="NetCore.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\code\CAcceptor.h" />
     <ClInclude Include="..\code\CArray.h" />
     <ClInclude Include="..\code\CBaseConnection.h" />
     <ClInclude Include="..\code\CBaseSocket.h" />

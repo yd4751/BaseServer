@@ -24,9 +24,6 @@
     <ClInclude Include="..\code\CNetCoreInterface.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\code\CAcceptor.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\code\CArray.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -93,9 +90,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\code\CNetCoreInterface.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\code\CAcceptor.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\code\CArray.cpp">

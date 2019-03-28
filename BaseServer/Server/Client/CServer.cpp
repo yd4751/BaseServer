@@ -67,7 +67,7 @@ void CServer::Start()
 	NetCore::Start();
 
 	//连接网关服务器
-	m_nodeServers.Add(ServerType::SERVER_GATE, "127.0.0.1", 8500);
+	m_nodeServers.Add(ServerType::SERVER_GATE, "192.168.0.99", 8500);
 	SendAuth();
 
 	m_bRunning = true;
